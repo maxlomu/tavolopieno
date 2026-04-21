@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TavoloPieno — Bari</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f7f3ec;
+    --ink: #1a1410;
+    --ink-soft: #6b6560;
+    --accent: #c1440e;
+    --accent-soft: #fde8d8;
+    --warm: #e8a33d;
+    --warm-soft: #fef3d8;
+    --yellow: #d4a017;
+    --yellow-soft: #fdf4d0;
+    --sage: #7a8b6f;
+    --border: #e6dfd3;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .brand h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: 42px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .brand h1 span { color: var(--accent); }
+  .brand .tag {
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin-top: 6px;
+    font-style: italic;
+  }
+  .meta {
+    text-align: right;
+    color: var(--ink-soft);
+    font-size: 13px;
+  }
+  .meta strong { color: var(--ink); font-weight: 600; }
+
+  /* Stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 32px 0 24px;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .stat .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .stat .val {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .stat.hot .val  { color: var(--accent); }
+  .stat.warm .val { color: var(--warm); }
+  .stat.nurt .val { color: var(--yellow); }
+
+  /* List */
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 8px 0 16px;
+  }
+  .list-header h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+  }
+  .list-header .count {
+    color: var(--ink-soft);
+    font-size: 13px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 12px;
+    transition: all 0.15s;
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 20px;
+    align-items: center;
+  }
+  .card:hover {
+    border-color: var(--ink-soft);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  }
+
+  .rank {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+  .rank.top3 { color: var(--accent); }
+
+  .info h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 19px;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .info h3 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .info h3 a:hover { color: var(--accent); }
+  .info .addr {
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: #f0ebe1;
+    color: var(--ink-soft);
+  }
+  .chip.photo  { background: #e6ece2; color: #3e5934; }
+  .chip.nophoto{ background: #fce8d8; color: var(--accent); }
+  .chip.trend  { background: #fde8d8; color: var(--accent); }
+
+  .score-col { text-align: right; min-width: 120px; }
+  .score-num {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: 44px;
+    line-height: 1;
+  }
+  .score-col.hot  .score-num { color: var(--accent); }
+  .score-col.warm .score-num { color: var(--warm); }
+  .score-col.nurt .score-num { color: var(--yellow); }
+  .score-col.low  .score-num { color: var(--ink-soft); }
+  .tier {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+  .score-col.hot  .tier { color: var(--accent); }
+  .score-col.warm .tier { color: var(--warm); }
+  .score-col.nurt .tier { color: var(--yellow); }
+  .score-col.low  .tier { color: var(--ink-soft); }
+  .stars { color: var(--ink-soft); font-size: 13px; margin-top: 6px; }
+
+  /* Empty / loading */
+  .state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--ink-soft);
+  }
+  .state h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 24px;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .state code {
+    font-family: 'Monaco', monospace;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 12px;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 24px 16px 60px; }
+    .brand h1 { font-size: 32px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .card {
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+    }
+    .rank { display: none; }
+    .score-num { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Tavolo<span>Pieno</span></h1>
+      <div class="tag">Signal-based lead scoring for Italian restaurants</div>
+    </div>
+    <div class="meta" id="meta">
+      <div><strong id="city">—</strong></div>
+      <div id="timestamp">Loading…</div>
+    </div>
+  </header>
+
+  <div id="content">
+    <div class="state">
+      <h2>Loading data…</h2>
+      <p>Fetching from <code>docs/data.json</code></p>
+    </div>
+  </div>
+
+  <footer>
+    TavoloPieno · built with 🍝 · data via Outscraper
+  </footer>
+</div>
+
+<script>
+const TIERS = {
+  "Hot Lead":     { class: "hot",  label: "Hot Lead" },
+  "Warm Lead":    { class: "warm", label: "Warm Lead" },
+  "Nurture":      { class: "nurt", label: "Nurture" },
+  "Low Priority": { class: "low",  label: "Low Priority" },
+};
+
+function fmtDate(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString("it-IT", { dateStyle: "medium", timeStyle: "short" });
+  } catch { return iso; }
+}
+
+function renderCard(r, idx) {
+  const tc = TIERS[r.tier] || TIERS["Low Priority"];
+  const chips = [];
+
+  if (r.has_photos_in_reviews) {
+    chips.push(`<span class="chip photo">📸 ${r.reviews_with_photos} recensioni con foto</span>`);
+  } else {
+    chips.push(`<span class="chip nophoto">📷 Nessuna foto nelle recensioni</span>`);
+  }
+
+  if (r.trend === "declining") {
+    chips.push(`<span class="chip trend">📉 Trend in calo</span>`);
+  }
+
+  if (r.category) {
+    chips.push(`<span class="chip">${r.category}</span>`);
+  }
+
+  if (r.price_level) {
+    chips.push(`<span class="chip">${r.price_level}</span>`);
+  }
+
+  const nameHtml = r.maps_url
+    ? `<a href="${r.maps_url}" target="_blank" rel="noreferrer">${r.name}</a>`
+    : r.name;
+
+  return `
+    <div class="card">
+      <div class="rank ${idx < 3 ? 'top3' : ''}">${idx + 1}</div>
+      <div class="info">
+        <h3>${nameHtml}</h3>
+        <div class="addr">${r.address || ""}</div>
+        <div class="chips">${chips.join("")}</div>
+      </div>
+      <div class="score-col ${tc.class}">
+        <div class="score-num">${r.score}</div>
+        <div class="tier">${tc.label}</div>
+        <div class="stars">⭐ ${r.rating} · ${r.review_count} rec.</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderStats(data) {
+  const tiers = { "Hot Lead": 0, "Warm Lead": 0, "Nurture": 0, "Low Priority": 0 };
+  let withPhotos = 0;
+  data.restaurants.forEach(r => {
+    tiers[r.tier] = (tiers[r.tier] || 0) + 1;
+    if (r.has_photos_in_reviews) withPhotos++;
+  });
+
+  return `
+    <div class="stats">
+      <div class="stat hot">
+        <div class="label">Hot Leads</div>
+        <div class="val">${tiers["Hot Lead"]}</div>
+      </div>
+      <div class="stat warm">
+        <div class="label">Warm Leads</div>
+        <div class="val">${tiers["Warm Lead"]}</div>
+      </div>
+      <div class="stat nurt">
+        <div class="label">Nurture</div>
+        <div class="val">${tiers["Nurture"]}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Con foto nelle rec.</div>
+        <div class="val">${withPhotos}/${data.restaurants.length}</div>
+      </div>
+    </div>
+  `;
+}
+
+async function load() {
+  try {
+    const res = await fetch("data.json?t=" + Date.now());
+    if (!res.ok) throw new Error("fetch failed");
+    const data = await res.json();
+
+    document.getElementById("city").textContent = data.city;
+    document.getElementById("timestamp").textContent = "Aggiornato: " + fmtDate(data.generated_at);
+
+    const html =
+      renderStats(data) +
+      `<div class="list-header">
+         <h2>Ristoranti analizzati</h2>
+         <div class="count">${data.restaurants.length} risultati · ordinati per pain score</div>
+       </div>` +
+      data.restaurants.map((r, i) => renderCard(r, i)).join("");
+
+    document.getElementById("content").innerHTML = html;
+  } catch (err) {
+    document.getElementById("content").innerHTML = `
+      <div class="state">
+        <h2>Nessun dato disponibile</h2>
+        <p>Vai su GitHub Actions e avvia il workflow <code>Fetch Bari restaurants</code>.</p>
+        <p style="margin-top:12px;">Appena completato, ricarica questa pagina.</p>
+      </div>
+    `;
+  }
+}
+
+load();
+</script>
+</body>
+</html>
