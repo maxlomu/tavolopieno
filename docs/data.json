@@ -1,7 +1,338 @@
 {
   "city": "Bari, Italy",
   "query": "ristoranti Bari, Italy",
-  "generated_at": "2026-04-22T10:00:00+00:00",
-  "count": 0,
-  "restaurants": []
+  "generated_at": "2026-04-21T22:33:42.602308+00:00",
+  "count": 10,
+  "restaurants": [
+    {
+      "place_id": "ChIJZ4cV35zpRxMRHCxX6h04wqA",
+      "name": "Eddycola Ristorante",
+      "address": "Corso Vittorio Emanuele II, 105, 70122 Bari BA",
+      "phone": "+39 320 462 8168",
+      "website": "http://www.eddycola.it/",
+      "maps_url": "https://www.google.com/maps/place/Eddycola+Ristorante/@41.1263216,16.8686817,14z/data=!4m8!1m2!2m1!1sEddycola+Ristorante!3m4!1s0x1347e99cdf158767:0xa0c2381dea572c1c!8m2!3d41.1263216!4d16.8686817",
+      "rating": 4.6,
+      "review_count": 585,
+      "price_level": null,
+      "category": "Ristorante",
+      "photo": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAHlzOweeXnA1dZkUZIB1ribf2cw_Q6gLLlp2xIU7tg5yPPrwJ6iRcxejuP3-E1ITqKcHj2nsZB5E3bhK0GeR-4pmq8s6--ylee1xbKavz9yXv8ZqHkbC9ft33blUFpu0snnlA6y=w800-h500-k-no",
+      "score": 25,
+      "tier": "Low Priority",
+      "trend": "declining",
+      "has_photos_in_reviews": false,
+      "reviews_with_photos": 0,
+      "total_photos": 0,
+      "sample_photo_url": null,
+      "sample_reviews": [
+        {
+          "rating": 1,
+          "text": "Prezzi molto alti, cibo mediocre. Unica nota positiva, camerieri molto gentili.",
+          "date": "04/21/2026 11:56:56"
+        },
+        {
+          "rating": 5,
+          "text": "Great food and service",
+          "date": "04/20/2026 11:59:19"
+        },
+        {
+          "rating": 2,
+          "text": "Inizialmente mi aveva fatto una buona impressione, ma l'insistenza del cameriere per il fuori menu mi ha spazientito.\n10 ricci di mare 60€\nÈ una cosa vergognosa.\nNeanche se arrivassero dalla luna o ri",
+          "date": "04/18/2026 06:14:27"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJRzOBj4roRxMRKicCj1trJ0g",
+      "name": "Opera",
+      "address": "Via Niccolò Piccinni, 151, 70122 Bari BA",
+      "phone": "+39 340 177 4153",
+      "website": "http://ristoranteoperabari.eatbu.com/",
+      "maps_url": "https://www.google.com/maps/place/Opera/@41.1251907,16.8649998,14z/data=!4m8!1m2!2m1!1sOpera!3m4!1s0x1347e88a8f813347:0x48276b5b8f02272a!8m2!3d41.1251907!4d16.8649998",
+      "rating": 4.5,
+      "review_count": 942,
+      "price_level": "€€",
+      "category": "Ristorante",
+      "photo": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAF4b3iGsxWj5Jwv3HzDbBafYJhDHk2t4kMGPskSK92_c9qX9e2LHhBXk0JJsDASfbhGQefLg8uQWRxf14KxETbHGcAx0Jzk9Zlk12P0EUOCge0GWf6LWp4guSPkPtAfybeI5BCRJw=w800-h500-k-no",
+      "score": 15,
+      "tier": "Low Priority",
+      "trend": "stable",
+      "has_photos_in_reviews": false,
+      "reviews_with_photos": 0,
+      "total_photos": 0,
+      "sample_photo_url": null,
+      "sample_reviews": [
+        {
+          "rating": 5,
+          "text": "Locale centrale, dopo una bella passeggiata a Bari, concluderla con un pranzo ottimo, ben presentato e servito da personale molto gentile, non ha prezzo!\nUn plauso allo chef!!!",
+          "date": "04/18/2026 18:38:39"
+        },
+        {
+          "rating": 5,
+          "text": "Ho pranzato con un' amica, abbiamo mangiato io un secondo a base di pesce e la mia amica un secondo di carne siamo rimaste molto soddisfatte, ottimo servizio buona accoglienza, grazie...",
+          "date": "04/15/2026 15:57:57"
+        },
+        {
+          "rating": 5,
+          "text": "Ottima esperienza, resa tale dall’ottimo servizio e materia prima di prima scelta",
+          "date": "04/11/2026 12:10:26"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJcUyVLpTpRxMRf1wzLtvXxAg",
+      "name": "Nicolaus - Il Bistrot dal Mare",
+      "address": "Corso Vittorio Emanuele II, 37, 70122 Bari BA",
+      "phone": "+39 393 564 8814",
+      "website": "http://www.nicolausbistrot.it/",
+      "maps_url": "https://www.google.com/maps/place/Nicolaus+-+Il+Bistrot+dal+Mare/@41.1264518,16.870613499999997,14z/data=!4m8!1m2!2m1!1sNicolaus+-+Il+Bistrot+dal+Mare!3m4!1s0x1347e9942e954c71:0x8c4d7db2e335c7f!8m2!3d41.1264518!4d16.870613499999997",
+      "rating": 4.5,
+      "review_count": 2514,
+      "price_level": "€",
+      "category": "Ristorante di pesce",
+      "photo": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAELJAMbeFB46ktEJ2ZRPx-ff88VxbHJbyvvK15aR0T20wFFfTs94iRnMqS-TuI9FZ62Z5MwWrgra2KHri62Q7_0JVW4SRXtfVsnXbLO9iPW8IofbCkRPAYUWhlFc_u0fywPdQtB=w800-h500-k-no",
+      "score": 15,
+      "tier": "Low Priority",
+      "trend": "stable",
+      "has_photos_in_reviews": false,
+      "reviews_with_photos": 0,
+      "total_photos": 0,
+      "sample_photo_url": null,
+      "sample_reviews": [
+        {
+          "rating": 5,
+          "text": "Très belle découverte :\nCuisine, excellente, servie généreusement.\npersonnel super sympa.\npas beaucoup d’attente\net prix très raisonnable.\nJe recommande cette adresse.",
+          "date": "04/21/2026 18:38:36"
+        },
+        {
+          "rating": 5,
+          "text": "It is very fresh and tasty. The fried seafood is too salty to me. I always eat very light taste food. My parents like the fried seafood.",
+          "date": "04/21/2026 14:51:14"
+        },
+        {
+          "rating": 5,
+          "text": "Sehr freundliches Service, kurze Wartezeiten. Meeresfrüchte Salat sehr gut, Thunfischsteak   der Erwartung entsprechend lecker.",
+          "date": "04/21/2026 14:07:12"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJiaR7fmToRxMRNdnoxBowKT8",
+      "name": "La Cantina dello Zio",
+      "address": "Strada Palazzo di Città, 51, 70122 Bari BA",
+      "phone": "+39 329 229 9403",
+      "website": null,
+      "maps_url": "https://www.google.com/maps/place/La+Cantina+dello+Zio/@41.1292301,16.8714095,14z/data=!4m8!1m2!2m1!1sLa+Cantina+dello+Zio!3m4!1s0x1347e8647e7ba489:0x3f29301ac4e8d935!8m2!3d41.1292301!4d16.8714095",
+      "rating": 4.7,
+      "review_count": 15025,
+      "price_level": "€€",
+      "category": "Ristorante",
+      "photo": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAHiOG35-CZyHQEVV5yzerdImiNI3kXM9ig0cnzaepyDIbRoKZSTP8KUZRz7ibhxyS-6hj5Cgp-YNJt_PhCO6OLEmd2SzUgrEe6KNQpf6DGD0mv25z0S2Ux65vxYbZq7mDx2Tlh6Bg=w800-h500-k-no",
+      "score": 5,
+      "tier": "Low Priority",
+      "trend": "stable",
+      "has_photos_in_reviews": false,
+      "reviews_with_photos": 0,
+      "total_photos": 0,
+      "sample_photo_url": null,
+      "sample_reviews": [
+        {
+          "rating": 5,
+          "text": "Beaucoup d'attente..et pour cause: très bon restaurant local, service agréable et prix raisonnables",
+          "date": "04/21/2026 19:12:46"
+        },
+        {
+          "rating": 5,
+          "text": "Nice place in Bari Vecchia. You have to wait 10-30 minutes for a table at lunch time. Very good food and nice atmosphere. Kind people. Good prices. You receive free Limoncello at the end.",
+          "date": "04/21/2026 17:56:13"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJzd333lPoRxMRMqM80amW2Do",
+      "name": "Origini",
+      "address": "Viale Don Luigi Sturzo, 29, 70125 Bari BA",
+      "phone": "+39 347 938 9589",
+      "website": "https://social.quandoo.com/en/groups/Origini-99314",
+      "maps_url": "https://www.google.com/maps/place/Origini/@41.1068406,16.8726164,14z/data=!4m8!1m2!2m1!1sOrigini!3m4!1s0x1347e853def7ddcd:0x3ad896a9d13ca332!8m2!3d41.1068406!4d16.8726164",
+      "rating": 4.6,
+      "review_count": 478,
+      "price_level": "€€",
+      "category": "Ristorante vegano",
+      "photo": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAHf3sPcYRrNlc0kxkLxN_pQWLkid9DB1kQkpC_C1ygwMXZeKdhP2cxMp-t864xzbRgOY2qL5WG8jGZ6ETvqueV8sjfc0gY0_XXDGtaqDvP0pEmGVeJmHUdPvuYoBrKEsQlr3mTM=w800-h500-k-no",
+      "score": 5,
+      "tier": "Low Priority",
+      "trend": "stable",
+      "has_photos_in_reviews": false,
+      "reviews_with_photos": 0,
+      "total_photos": 0,
+      "sample_photo_url": null,
+      "sample_reviews": [
+        {
+          "rating": 5,
+          "text": "Exceptionnel, quelle découverte! Plats parfaits , du goût, du raffinements, vin, charcuterie et fromages sélectionnés ! Merveilleux moment",
+          "date": "04/21/2026 20:16:57"
+        },
+        {
+          "rating": 5,
+          "text": "Cortesia e passione caratterizzano I due titolari, marito e moglie. Prodotti squisiti, presentati molto bene. Ambiente molto piacevole. Assolutamente consigliato!",
+          "date": "03/19/2026 16:51:57"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJndcOmW_pRxMRfNxFivXGCMo",
+      "name": "Antò Ristorante -- Cucina tipica pugliese -- Bari",
+      "address": "Strada Palazzo di Città, 14, 70122 Bari BA",
+      "phone": "+39 351 795 1952",
+      "website": "http://antobari.it/",
+      "maps_url": "https://www.google.com/maps/place/Ant%C3%B2+Ristorante+--+Cucina+tipica+pugliese+--+Bari/@41.128868399999995,16.871369599999998,14z/data=!4m8!1m2!2m1!1sAnt%C3%B2+Ristorante+--+Cucina+tipica+pugliese+--+Bari!3m4!1s0x1347e96f990ed79d:0xca08c6f58a45dc7c!8m2!3d41.128868399999995!4d16.871369599999998",
+      "rating": 4.6,
+      "review_count": 11612,
+      "price_level": "€€",
+      "category": "Ristorante",
+      "photo": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAEIbO7d7jQWG6cGdO3MJeADyy9EDekyd5TzfXkXkZbUW4EQREJgqFaWl1-RRQteI6wvvKT60OsnZKPIxyeb6g_pJ5-qEDhUWmpF0E-w71G8eVmi2gwNVQF8y6fMIBf4-KBiZlUtoA=w800-h500-k-no",
+      "score": 5,
+      "tier": "Low Priority",
+      "trend": "stable",
+      "has_photos_in_reviews": false,
+      "reviews_with_photos": 0,
+      "total_photos": 0,
+      "sample_photo_url": null,
+      "sample_reviews": [
+        {
+          "rating": 5,
+          "text": "Wspaniale miejsce, przepyszne jedzenie!",
+          "date": "04/21/2026 19:26:22"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJ72cG86npRxMRlcFrlR_y7dQ",
+      "name": "Old Tbilisi",
+      "address": "P.za Luigi di Savoia, 1, 70121 Bari BA",
+      "phone": "+39 333 708 3085",
+      "website": "https://social.quandoo.com/en/groups/old-tbilisi-104532",
+      "maps_url": "https://www.google.com/maps/place/Old+Tbilisi/@41.1200682,16.8739119,14z/data=!4m8!1m2!2m1!1sOld+Tbilisi!3m4!1s0x1347e9a9f30667ef:0xd4edf21f956bc195!8m2!3d41.1200682!4d16.8739119",
+      "rating": 4.6,
+      "review_count": 589,
+      "price_level": "€",
+      "category": "Ristorante georgiano",
+      "photo": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAEN_-TjJmSVXWBV4x5Zd7cVxOmC4E5tlf7UHU7SkASsEKz8aGTf3f8ww2Ts08thL6CJ3KhRbyW42EQugRe2Yt0WeH-ZF_ilNPYdjuLRXAXG3rOtz0hImXI9EdfBRh0o1KFM6o57A2hzLwo=w800-h500-k-no",
+      "score": 5,
+      "tier": "Low Priority",
+      "trend": "stable",
+      "has_photos_in_reviews": false,
+      "reviews_with_photos": 0,
+      "total_photos": 0,
+      "sample_photo_url": null,
+      "sample_reviews": [
+        {
+          "rating": 5,
+          "text": "Manzo (Ostri) cucinato in modo ottimo, lo stesso per la focaccia  ripiena di spinaci e formaggio",
+          "date": "04/21/2026 19:49:12"
+        },
+        {
+          "rating": 5,
+          "text": "Perfect service by Ahsan! Very Kind and helpful\n\nFood was also amazing!",
+          "date": "04/19/2026 12:14:31"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJO9qOskTpRxMRxhdA2dBWiJg",
+      "name": "Samuele Pastanella - Ristorante",
+      "address": "Via Niccolò Piccinni, 110, 70122 Bari BA",
+      "phone": "+39 080 236 8402",
+      "website": null,
+      "maps_url": "https://www.google.com/maps/place/Samuele+Pastanella+-+Ristorante/@41.1250828,16.867482799999998,14z/data=!4m8!1m2!2m1!1sSamuele+Pastanella+-+Ristorante!3m4!1s0x1347e944b28eda3b:0x988856d0d94017c6!8m2!3d41.1250828!4d16.867482799999998",
+      "rating": 4.7,
+      "review_count": 407,
+      "price_level": null,
+      "category": "Ristorante italiano",
+      "photo": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAEW_Je-A4MykJyAV4gFW7wu4FOBM_0qjc-xImjFBIRbQJ4Z0LtJErHHD6lJg6Pv9uAS1xERr-BSHyDAKlRYU3GHXy0EQyY4wX3gJCoZdKoX5O3MiE1uHAJdW6ju4X1kAvc3GEFlo8nd12E=w800-h500-k-no",
+      "score": 5,
+      "tier": "Low Priority",
+      "trend": "stable",
+      "has_photos_in_reviews": false,
+      "reviews_with_photos": 0,
+      "total_photos": 0,
+      "sample_photo_url": null,
+      "sample_reviews": [
+        {
+          "rating": 5,
+          "text": "Esperienza perfetta, assolutamente da ripetere! Ci siamo sentiti coccolati ed abbiamo mangiato benissimo!",
+          "date": "04/19/2026 08:47:49"
+        },
+        {
+          "rating": 5,
+          "text": "We had an incredible dinner here in Bari. The fish was fresh, perfectly prepared, and honestly some of the best seafood I’ve had in Puglia. But the real star for me? The cannolo was hands-down the bes",
+          "date": "04/18/2026 18:38:07"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJX0_-LgfpRxMRVxwQcuYwBUw",
+      "name": "La Moderna Brace",
+      "address": "Via Principe Amedeo, 488, 70123 Bari BA",
+      "phone": "+39 347 092 6854",
+      "website": "https://lamodernabrace.it/",
+      "maps_url": "https://www.google.com/maps/place/La+Moderna+Brace/@41.121764,16.8553308,14z/data=!4m8!1m2!2m1!1sLa+Moderna+Brace!3m4!1s0x1347e9072efe4f5f:0x4c0530e672101c57!8m2!3d41.121764!4d16.8553308",
+      "rating": 4.7,
+      "review_count": 537,
+      "price_level": "€€",
+      "category": "Ristorante italiano",
+      "photo": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAG7mw3lZA3zxC9WKoYRsePmsQRReXpRSM_USNVWlfLCbEfdVrTkwCe-ym51P3Crnok_VV2r5554xVDiGVXL5721Q2Sd17anjVdBLGD6dQ7IcURDhxOyZ6Z4LrEny4WJBxRT4iQm-7AOtFQ=w800-h500-k-no",
+      "score": 5,
+      "tier": "Low Priority",
+      "trend": "stable",
+      "has_photos_in_reviews": false,
+      "reviews_with_photos": 0,
+      "total_photos": 0,
+      "sample_photo_url": null,
+      "sample_reviews": [
+        {
+          "rating": 5,
+          "text": "Ottimo locale ottimi prodotti ottimo personale",
+          "date": "04/16/2026 05:02:25"
+        },
+        {
+          "rating": 4,
+          "text": "Wahouw que dire du vous aimez la bonne viande foncez y ...un vrai régal.",
+          "date": "04/13/2026 15:34:58"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJb32XuuvpRxMRq7gxhOoGduQ",
+      "name": "Ristorante Damé Cucina",
+      "address": "Traversa al.126 di, Via Giovanni Amendola, 126, 70126 Bari BA",
+      "phone": "+39 340 821 9730",
+      "website": "https://social.quandoo.com/en/groups/ristorante-dam%25C3%25A8-cucina-101287",
+      "maps_url": "https://www.google.com/maps/place/Ristorante+Dam%C3%A9+Cucina/@41.1119918,16.8840884,14z/data=!4m8!1m2!2m1!1sRistorante+Dam%C3%A9+Cucina!3m4!1s0x1347e9ebba977d6f:0xe47606ea8431b8ab!8m2!3d41.1119918!4d16.8840884",
+      "rating": 4.8,
+      "review_count": 285,
+      "price_level": null,
+      "category": "Ristorante italiano",
+      "photo": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAG_svwEL2oqnbvt0w4YSPNVxtPNbh4-TnNgufnpAiYL1IL_PHCs1Cg3QT3G546r2mjD-FKFfuCYjlY363-drP0KI_uIIpV-7F-duy5CjNnr7JlDQpdiozkPJDS1dSlB_9o8ZRau=w800-h500-k-no",
+      "score": 5,
+      "tier": "Low Priority",
+      "trend": "stable",
+      "has_photos_in_reviews": false,
+      "reviews_with_photos": 0,
+      "total_photos": 0,
+      "sample_photo_url": null,
+      "sample_reviews": [
+        {
+          "rating": 5,
+          "text": "Daniela è una padrona di casa ineccepibile,  la sua sua cucina è veramente \"Da me\" ti senti a casa ,ma con una semplicità raffinata che coniuga il gusto e la vista.\nConsiglio vivamente questa esperien",
+          "date": "02/17/2026 12:47:57"
+        },
+        {
+          "rating": 5,
+          "text": "Sono stato a cena con amici in questo nuovo ristorante di Bari. Ambiente piccolo ma accogliente e curato nei dettagli.\nServizio eccellente con particolare attenzione ai dettagli e alla cura degli ospi",
+          "date": "02/07/2026 20:04:07"
+        }
+      ]
+    }
+  ]
 }
