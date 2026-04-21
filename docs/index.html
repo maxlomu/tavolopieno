@@ -123,6 +123,37 @@
     gap: 20px;
     align-items: center;
   }
+  .menu-photos {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-top: 14px;
+    margin-top: 14px;
+    border-top: 1px dashed var(--border);
+  }
+  .menu-photos .mp-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    align-self: center;
+    flex-shrink: 0;
+    padding-right: 4px;
+  }
+  .menu-photos img {
+    width: 92px;
+    height: 92px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    cursor: zoom-in;
+    transition: transform 0.15s;
+  }
+  .menu-photos img:hover { transform: scale(1.03); }
+  .chip.menu  { background: #fdf4d0; color: #7a5b00; }
   .card:hover {
     border-color: var(--ink-soft);
     transform: translateY(-1px);
@@ -284,10 +315,14 @@ function renderCard(r, idx) {
   const tc = TIERS[r.tier] || TIERS["Low Priority"];
   const chips = [];
 
+  if (r.has_menu_photos) {
+    chips.push(`<span class="chip menu">🍽️ ${r.menu_photos.length} foto menu</span>`);
+  } else {
+    chips.push(`<span class="chip nophoto">📷 Nessuna foto menu</span>`);
+  }
+
   if (r.has_photos_in_reviews) {
     chips.push(`<span class="chip photo">📸 ${r.reviews_with_photos} recensioni con foto</span>`);
-  } else {
-    chips.push(`<span class="chip nophoto">📷 Nessuna foto nelle recensioni</span>`);
   }
 
   if (r.trend === "declining") {
@@ -306,6 +341,13 @@ function renderCard(r, idx) {
     ? `<a href="${r.maps_url}" target="_blank" rel="noreferrer">${r.name}</a>`
     : r.name;
 
+  const menuStrip = (r.menu_photos && r.menu_photos.length)
+    ? `<div class="menu-photos">
+         <span class="mp-label">Menu</span>
+         ${r.menu_photos.map(u => `<a href="${u}" target="_blank" rel="noreferrer"><img src="${u}" alt="menu" loading="lazy"></a>`).join("")}
+       </div>`
+    : "";
+
   return `
     <div class="card">
       <div class="rank ${idx < 3 ? 'top3' : ''}">${idx + 1}</div>
@@ -319,16 +361,17 @@ function renderCard(r, idx) {
         <div class="tier">${tc.label}</div>
         <div class="stars">⭐ ${r.rating} · ${r.review_count} rec.</div>
       </div>
+      ${menuStrip}
     </div>
   `;
 }
 
 function renderStats(data) {
   const tiers = { "Hot Lead": 0, "Warm Lead": 0, "Nurture": 0, "Low Priority": 0 };
-  let withPhotos = 0;
+  let withMenuPhotos = 0;
   data.restaurants.forEach(r => {
     tiers[r.tier] = (tiers[r.tier] || 0) + 1;
-    if (r.has_photos_in_reviews) withPhotos++;
+    if (r.has_menu_photos) withMenuPhotos++;
   });
 
   return `
@@ -346,8 +389,8 @@ function renderStats(data) {
         <div class="val">${tiers["Nurture"]}</div>
       </div>
       <div class="stat">
-        <div class="label">Con foto nelle rec.</div>
-        <div class="val">${withPhotos}/${data.restaurants.length}</div>
+        <div class="label">Con foto menu</div>
+        <div class="val">${withMenuPhotos}/${data.restaurants.length}</div>
       </div>
     </div>
   `;
