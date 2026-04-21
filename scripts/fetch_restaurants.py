@@ -24,7 +24,7 @@ HEADERS = {"X-API-KEY": OUTSCRAPER_KEY}
 
 CITY = "Bari, Italy"
 QUERY = f"ristoranti {CITY}"
-N_RESTAURANTS = 10
+N_RESTAURANTS = 100
 REVIEWS_PER_PLACE = 20  # enough to find photos if any exist
 
 
@@ -166,6 +166,39 @@ def score_restaurant(place: dict, reviews: list) -> dict:
     return {"score": score, "tier": tier, "trend": "declining" if trend_pain >= 10 else "stable"}
 
 
+def _extract_review_photos(rev: dict) -> list:
+    """
+    Pull photo URLs from a single review. Outscraper's reviews-v3 returns
+    `review_img_url` (single) or `review_img_urls` (plural list); some older
+    payloads used `review_photos` / `photos`. We check all shapes.
+    """
+    urls = []
+
+    single = rev.get("review_img_url")
+    if isinstance(single, str) and single:
+        urls.append(single)
+
+    plural = rev.get("review_img_urls")
+    if isinstance(plural, list):
+        urls.extend(u for u in plural if isinstance(u, str) and u)
+    elif isinstance(plural, str) and plural:
+        urls.append(plural)
+
+    # Legacy / fallback field names
+    for key in ("review_photos", "photos"):
+        val = rev.get(key)
+        if isinstance(val, list):
+            for item in val:
+                if isinstance(item, dict):
+                    u = item.get("url") or item.get("photo_url")
+                    if u:
+                        urls.append(u)
+                elif isinstance(item, str) and item:
+                    urls.append(item)
+
+    return urls
+
+
 def analyze_menu_photos(reviews: list) -> dict:
     """Check if any review includes photos (menu candidate)."""
     total_photos = 0
@@ -173,15 +206,12 @@ def analyze_menu_photos(reviews: list) -> dict:
     sample_photo_url = None
 
     for rev in reviews:
-        photos = rev.get("review_photos") or rev.get("photos") or []
-        if photos:
+        urls = _extract_review_photos(rev)
+        if urls:
             reviews_with_photos += 1
-            total_photos += len(photos)
+            total_photos += len(urls)
             if not sample_photo_url:
-                if isinstance(photos[0], dict):
-                    sample_photo_url = photos[0].get("url") or photos[0].get("photo_url")
-                else:
-                    sample_photo_url = photos[0]
+                sample_photo_url = urls[0]
 
     return {
         "has_photos_in_reviews": reviews_with_photos > 0,
