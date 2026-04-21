@@ -101,6 +101,24 @@ def fetch_menu_photos(place_ids: list) -> dict:
     }
     data = call_async("maps/photos-v3", params)
 
+    # ── Temporary diagnostics: dump the raw response shape ───────
+    print("\n──── RAW RESPONSE DIAGNOSTICS ────")
+    print(f"type(data)={type(data).__name__}  len={len(data) if hasattr(data, '__len__') else 'n/a'}")
+    for i in range(min(2, len(data))):
+        e = data[i]
+        print(f"\n  data[{i}] for place_id={place_ids[i] if i < len(place_ids) else '?'}:")
+        print(f"    type={type(e).__name__}")
+        if isinstance(e, list):
+            print(f"    len={len(e)}")
+            for j, ph in enumerate(e[:3]):
+                print(f"    [{j}] type={type(ph).__name__} keys={list(ph.keys()) if isinstance(ph, dict) else 'n/a'}")
+                if isinstance(ph, dict):
+                    print(f"         sample={json.dumps({k: str(v)[:80] for k, v in ph.items()}, ensure_ascii=False)}")
+        elif isinstance(e, dict):
+            print(f"    keys={list(e.keys())}")
+            print(f"    sample={json.dumps({k: str(v)[:80] for k, v in e.items()}, ensure_ascii=False)}")
+    print("──── END DIAGNOSTICS ────\n")
+
     result = {}
     for i, entry in enumerate(data):
         if i >= len(place_ids):
