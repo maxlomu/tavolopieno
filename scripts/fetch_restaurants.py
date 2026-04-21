@@ -26,7 +26,6 @@ CITY = "Bari, Italy"
 QUERY = f"ristoranti {CITY}"
 N_RESTAURANTS = 100
 REVIEWS_PER_PLACE = 20  # enough to find photos if any exist
-MENU_PHOTOS_PER_PLACE = 6  # from Google Maps "Menu" photo category
 
 
 # ──────────────────────────────────────────────
@@ -105,44 +104,6 @@ def fetch_reviews(place_ids: list) -> dict:
         if pid:
             result[pid] = place.get("reviews_data", [])
     print(f"   ✅ Got reviews for {len(result)} places")
-    return result
-
-
-def fetch_menu_photos(place_ids: list) -> dict:
-    """
-    Fetch photos tagged 'Menu' on Google Maps for each place.
-    Returns {place_id: [photo_url, ...]}.
-    """
-    print(f"🍽️  Fetching menu photos for {len(place_ids)} restaurants...")
-    params = {
-        "query": place_ids,
-        "photosLimit": MENU_PHOTOS_PER_PLACE,
-        "tag": "menu",
-        "language": "it",
-        "region": "IT",
-        "async": "true",
-    }
-    data = call_async("maps/photos-v3", params)
-    result = {}
-    for place in data:
-        pid = place.get("place_id") or place.get("google_id") or place.get("query")
-        if not pid:
-            continue
-        # photos_data is the usual container; each entry may expose the URL
-        # under different keys depending on Outscraper's version.
-        photos = place.get("photos_data") or place.get("photos") or []
-        urls = []
-        for ph in photos:
-            if isinstance(ph, dict):
-                u = ph.get("photo_url") or ph.get("url") or ph.get("original_photo_url")
-            else:
-                u = ph if isinstance(ph, str) else None
-            if u:
-                urls.append(u)
-        result[pid] = urls
-    total = sum(len(v) for v in result.values())
-    hits = sum(1 for v in result.values() if v)
-    print(f"   ✅ {hits}/{len(place_ids)} restaurants have menu photos ({total} total)")
     return result
 
 
@@ -272,13 +233,11 @@ def main():
 
     place_ids = [p.get("place_id") or p.get("google_id") for p in places if p.get("place_id") or p.get("google_id")]
     reviews_by_id = fetch_reviews(place_ids)
-    menu_photos_by_id = fetch_menu_photos(place_ids)
 
     results = []
     for p in places:
         pid = p.get("place_id") or p.get("google_id")
         reviews = reviews_by_id.get(pid, [])
-        menu_photos = menu_photos_by_id.get(pid, [])
 
         scoring = score_restaurant(p, reviews)
         photos = analyze_menu_photos(reviews)
@@ -308,8 +267,6 @@ def main():
             "photo":         p.get("photo"),
             **scoring,
             **photos,
-            "menu_photos": menu_photos,
-            "has_menu_photos": len(menu_photos) > 0,
             "sample_reviews": sample_reviews,
         })
 
