@@ -10,6 +10,7 @@ Runs independently of the main fetcher so we don't re-scrape places
 and reviews we already have.
 """
 
+import ast
 import json
 import os
 import sys
@@ -63,32 +64,44 @@ def call_async(endpoint: str, params: dict) -> list:
 # Photo extraction
 # ──────────────────────────────────────────────
 
-def _photo_urls_from_entry(entry) -> list:
+def _coerce_photos_data(raw) -> list:
     """
-    Normalize a single photo entry into a list of URLs.
-    Outscraper returns photo dicts; we accept strings as a fallback.
+    `photos_data` comes back either as a native list of dicts or as a
+    Python-repr string (e.g. "[{'original_photo_url': '...'}, ...]").
+    Normalize to a list of dicts.
     """
-    if isinstance(entry, str):
-        return [entry] if entry else []
-    if not isinstance(entry, dict):
-        return []
-
-    # Try common URL-bearing keys in order of preference (original first).
-    for key in ("original_photo_url", "photo_url_big", "photo_url", "url", "photo"):
-        u = entry.get(key)
-        if isinstance(u, str) and u:
-            return [u]
+    if isinstance(raw, list):
+        return raw
+    if isinstance(raw, str) and raw.strip():
+        try:
+            parsed = ast.literal_eval(raw)
+            if isinstance(parsed, list):
+                return parsed
+        except (ValueError, SyntaxError):
+            pass
     return []
+
+
+def _url_from_photo(photo: dict) -> str | None:
+    """Pick the best available URL from a single photo dict."""
+    if not isinstance(photo, dict):
+        return None
+    for key in ("original_photo_url", "photo_url_big", "photo_url", "url"):
+        u = photo.get(key)
+        if isinstance(u, str) and u:
+            return u
+    return None
 
 
 def fetch_menu_photos(place_ids: list) -> dict:
     """
     Returns {place_id: [photo_url, ...]}.
 
-    The /maps/photos-v3 endpoint returns data as a list of sublists —
-    one sublist per queried place_id, in the same order as the input
-    queries. Each sublist contains photo dicts. The place_id is NOT
-    embedded in each photo, so we map by position.
+    The /maps/photos-v3 endpoint actually returns full place profiles
+    (same shape as /maps/search-v3), one per queried place_id, in input
+    order. The filtered photos live in each profile's `photos_data`
+    array — when tag="menu" is set, that array is limited to photos
+    from Google Maps' "Menu" tab.
     """
     print(f"🍽️  Fetching menu photos for {len(place_ids)} restaurants...")
     params = {
@@ -101,48 +114,34 @@ def fetch_menu_photos(place_ids: list) -> dict:
     }
     data = call_async("maps/photos-v3", params)
 
-    # ── Temporary diagnostics: dump the raw response shape ───────
-    print("\n──── RAW RESPONSE DIAGNOSTICS ────")
-    print(f"type(data)={type(data).__name__}  len={len(data) if hasattr(data, '__len__') else 'n/a'}")
-    for i in range(min(2, len(data))):
-        e = data[i]
-        print(f"\n  data[{i}] for place_id={place_ids[i] if i < len(place_ids) else '?'}:")
-        print(f"    type={type(e).__name__}")
-        if isinstance(e, list):
-            print(f"    len={len(e)}")
-            for j, ph in enumerate(e[:3]):
-                print(f"    [{j}] type={type(ph).__name__} keys={list(ph.keys()) if isinstance(ph, dict) else 'n/a'}")
-                if isinstance(ph, dict):
-                    print(f"         sample={json.dumps({k: str(v)[:80] for k, v in ph.items()}, ensure_ascii=False)}")
-        elif isinstance(e, dict):
-            print(f"    keys={list(e.keys())}")
-            print(f"    sample={json.dumps({k: str(v)[:80] for k, v in e.items()}, ensure_ascii=False)}")
-    print("──── END DIAGNOSTICS ────\n")
-
     result = {}
     for i, entry in enumerate(data):
         if i >= len(place_ids):
             break
         pid = place_ids[i]
 
-        # Each entry is normally a list of photo dicts. Some payloads
-        # wrap them in a dict with a photos_data / photos key — handle both.
-        if isinstance(entry, dict):
-            photos = entry.get("photos_data") or entry.get("photos") or []
-        elif isinstance(entry, list):
-            photos = entry
-        else:
-            photos = []
+        # Entry is normally a 1-element list containing the place dict.
+        place = None
+        if isinstance(entry, list) and entry and isinstance(entry[0], dict):
+            place = entry[0]
+        elif isinstance(entry, dict):
+            place = entry
 
         urls = []
-        for ph in photos:
-            urls.extend(_photo_urls_from_entry(ph))
+        if place:
+            photos_data = _coerce_photos_data(place.get("photos_data"))
+            for ph in photos_data:
+                u = _url_from_photo(ph)
+                if u:
+                    urls.append(u)
 
-        result[pid] = urls
+        result[pid] = urls[:MENU_PHOTOS_PER_PLACE]
 
     total = sum(len(v) for v in result.values())
     hits = sum(1 for v in result.values() if v)
-    print(f"   ✅ {hits}/{len(place_ids)} restaurants have menu photos ({total} total)")
+    empties = len(place_ids) - hits
+    print(f"   ✅ {hits}/{len(place_ids)} restaurants have menu photos "
+          f"({total} total, {empties} with none)")
     return result
 
 
