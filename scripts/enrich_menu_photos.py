@@ -29,6 +29,11 @@ HEADERS = {"X-API-KEY": OUTSCRAPER_KEY}
 
 DATA_PATH = "docs/data.json"
 MENU_PHOTOS_PER_PLACE = 6
+# Outscraper's /maps/photos-v3 silently drops queries after the first
+# ~10 in a single async task — running it with 100 place_ids at once
+# only returned photos for the first 10. Chunking keeps each call
+# within the sweet spot where every query is honoured.
+PLACE_IDS_PER_CALL = 10
 
 
 # ──────────────────────────────────────────────
@@ -103,39 +108,44 @@ def fetch_menu_photos(place_ids: list) -> dict:
     array — when tag="menu" is set, that array is limited to photos
     from Google Maps' "Menu" tab.
     """
-    print(f"🍽️  Fetching menu photos for {len(place_ids)} restaurants...")
-    params = {
-        "query": place_ids,
-        "photosLimit": MENU_PHOTOS_PER_PLACE,
-        "tag": "menu",
-        "language": "it",
-        "region": "IT",
-        "async": "true",
-    }
-    data = call_async("maps/photos-v3", params)
-
+    print(f"🍽️  Fetching menu photos for {len(place_ids)} restaurants "
+          f"(in chunks of {PLACE_IDS_PER_CALL})...")
     result = {}
-    for i, entry in enumerate(data):
-        if i >= len(place_ids):
-            break
-        pid = place_ids[i]
+    for chunk_start in range(0, len(place_ids), PLACE_IDS_PER_CALL):
+        chunk = place_ids[chunk_start:chunk_start + PLACE_IDS_PER_CALL]
+        print(f"   → chunk {chunk_start // PLACE_IDS_PER_CALL + 1}: "
+              f"{len(chunk)} place_ids")
+        params = {
+            "query": chunk,
+            "photosLimit": MENU_PHOTOS_PER_PLACE,
+            "tag": "menu",
+            "language": "it",
+            "region": "IT",
+            "async": "true",
+        }
+        data = call_async("maps/photos-v3", params)
 
-        # Entry is normally a 1-element list containing the place dict.
-        place = None
-        if isinstance(entry, list) and entry and isinstance(entry[0], dict):
-            place = entry[0]
-        elif isinstance(entry, dict):
-            place = entry
+        for i, entry in enumerate(data):
+            if i >= len(chunk):
+                break
+            pid = chunk[i]
 
-        urls = []
-        if place:
-            photos_data = _coerce_photos_data(place.get("photos_data"))
-            for ph in photos_data:
-                u = _url_from_photo(ph)
-                if u:
-                    urls.append(u)
+            # Entry is normally a 1-element list containing the place dict.
+            place = None
+            if isinstance(entry, list) and entry and isinstance(entry[0], dict):
+                place = entry[0]
+            elif isinstance(entry, dict):
+                place = entry
 
-        result[pid] = urls[:MENU_PHOTOS_PER_PLACE]
+            urls = []
+            if place:
+                photos_data = _coerce_photos_data(place.get("photos_data"))
+                for ph in photos_data:
+                    u = _url_from_photo(ph)
+                    if u:
+                        urls.append(u)
+
+            result[pid] = urls[:MENU_PHOTOS_PER_PLACE]
 
     total = sum(len(v) for v in result.values())
     hits = sum(1 for v in result.values() if v)
