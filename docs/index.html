@@ -389,22 +389,24 @@ function renderCard(r, idx) {
   if (Array.isArray(r.all_emails)) rawEmails.push(...r.all_emails);
   const uniqEmails = [...new Set(rawEmails.map(e => (e || "").toLowerCase()).filter(e => e.includes("@")))];
 
-  // Filter to emails whose domain matches the restaurant's own website domain.
-  // This drops unrelated emails (e.g. guadec@gnome.org) picked up by the
-  // scraper from linked third-party pages.
-  const siteDomain = (() => {
-    if (!r.website) return null;
-    try {
-      const host = new URL(r.website.includes("://") ? r.website : "http://" + r.website).hostname.toLowerCase();
-      return host.replace(/^www\./, "");
-    } catch { return null; }
-  })();
-  const emailsToShow = siteDomain
-    ? uniqEmails.filter(e => {
-        const d = e.split("@")[1] || "";
-        return d === siteDomain || d.endsWith("." + siteDomain) || siteDomain.endsWith("." + d);
-      })
-    : uniqEmails;
+  // Blocklist of domains that are clearly not the restaurant's own —
+  // usually picked up by the scraper from linked third-party pages
+  // (platform/CMS credits, unrelated projects, placeholders).
+  // Personal providers like gmail.com / libero.it are intentionally NOT
+  // here, because small restaurants often use them legitimately.
+  const BLOCKED_EMAIL_DOMAINS = new Set([
+    "gnome.org",
+    "wordpress.com", "wordpress.org",
+    "wix.com", "wixpress.com",
+    "sentry.io", "sentry-next.wixpress.com",
+    "example.com", "domain.com", "email.com", "yourdomain.com",
+    "shopify.com", "squarespace.com",
+    "godaddy.com",
+  ]);
+  const emailsToShow = uniqEmails.filter(e => {
+    const d = (e.split("@")[1] || "").toLowerCase();
+    return d && !BLOCKED_EMAIL_DOMAINS.has(d);
+  });
 
   let contactBlock = "";
   if (emailsToShow.length || r.primary_contact_name) {
