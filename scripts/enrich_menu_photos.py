@@ -29,6 +29,7 @@ HEADERS = {"X-API-KEY": OUTSCRAPER_KEY}
 
 DATA_PATH = "docs/data.json"
 MENU_PHOTOS_PER_PLACE = 6
+MAX_RESTAURANTS = 10  # cap for cost control while testing; set to None for all
 
 
 # ──────────────────────────────────────────────
@@ -162,16 +163,28 @@ def main():
         print("❌ No restaurants found in data.json")
         sys.exit(1)
 
-    place_ids = [r["place_id"] for r in restaurants if r.get("place_id")]
+    all_place_ids = [r["place_id"] for r in restaurants if r.get("place_id")]
     print(f"📂 Loaded {len(restaurants)} restaurants from {DATA_PATH}")
+
+    if MAX_RESTAURANTS is not None and len(all_place_ids) > MAX_RESTAURANTS:
+        place_ids = all_place_ids[:MAX_RESTAURANTS]
+        print(f"⚠️  Test mode: enriching only the first {MAX_RESTAURANTS} "
+              f"(of {len(all_place_ids)}) — edit MAX_RESTAURANTS to lift the cap")
+    else:
+        place_ids = all_place_ids
 
     menu_photos_by_id = fetch_menu_photos(place_ids)
 
+    # Only overwrite entries for the place_ids we actually queried. Leaves
+    # any previously-enriched restaurants untouched, so running in test
+    # mode doesn't wipe prior data.
+    fetched_ids = set(place_ids)
     for r in restaurants:
         pid = r.get("place_id")
-        photos = menu_photos_by_id.get(pid, [])
-        r["menu_photos"] = photos
-        r["has_menu_photos"] = len(photos) > 0
+        if pid in fetched_ids:
+            photos = menu_photos_by_id.get(pid, [])
+            r["menu_photos"] = photos
+            r["has_menu_photos"] = len(photos) > 0
 
     data["menu_photos_enriched_at"] = datetime.now(timezone.utc).isoformat()
 
