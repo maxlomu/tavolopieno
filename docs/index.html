@@ -183,7 +183,12 @@
   .contact .c-email:hover { text-decoration: underline; }
   .contact .c-name { font-weight: 600; }
   .contact .c-title { color: var(--ink-soft); font-style: italic; }
-  .contact .c-extra { color: var(--ink-soft); font-size: 12px; }
+  .contact .c-emails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    align-items: baseline;
+  }
   .card:hover {
     border-color: var(--ink-soft);
     transform: translateY(-1px);
@@ -378,21 +383,42 @@ function renderCard(r, idx) {
        </div>`
     : "";
 
+  // Build the pool of emails from all available fields, deduplicated.
+  const rawEmails = [];
+  if (r.primary_email) rawEmails.push(r.primary_email);
+  if (Array.isArray(r.all_emails)) rawEmails.push(...r.all_emails);
+  const uniqEmails = [...new Set(rawEmails.map(e => (e || "").toLowerCase()).filter(e => e.includes("@")))];
+
+  // Filter to emails whose domain matches the restaurant's own website domain.
+  // This drops unrelated emails (e.g. guadec@gnome.org) picked up by the
+  // scraper from linked third-party pages.
+  const siteDomain = (() => {
+    if (!r.website) return null;
+    try {
+      const host = new URL(r.website.includes("://") ? r.website : "http://" + r.website).hostname.toLowerCase();
+      return host.replace(/^www\./, "");
+    } catch { return null; }
+  })();
+  const emailsToShow = siteDomain
+    ? uniqEmails.filter(e => {
+        const d = e.split("@")[1] || "";
+        return d === siteDomain || d.endsWith("." + siteDomain) || siteDomain.endsWith("." + d);
+      })
+    : uniqEmails;
+
   let contactBlock = "";
-  if (r.primary_email || (r.all_emails && r.all_emails.length)) {
-    const email = r.primary_email || r.all_emails[0];
+  if (emailsToShow.length || r.primary_contact_name) {
     const nameBit = r.primary_contact_name
       ? `<span class="c-name">${r.primary_contact_name}</span>${r.primary_contact_title ? ` <span class="c-title">— ${r.primary_contact_title}</span>` : ""}`
       : "";
-    const extraCount = (r.all_emails && r.all_emails.length > 1)
-      ? `<span class="c-extra">+${r.all_emails.length - 1} altre</span>`
+    const emailsHtml = emailsToShow.length
+      ? `<div class="c-emails">${emailsToShow.map(e => `<a class="c-email" href="mailto:${e}">${e}</a>`).join("")}</div>`
       : "";
     contactBlock = `
       <div class="contact">
         <span class="c-label">Contatto</span>
         ${nameBit}
-        <a class="c-email" href="mailto:${email}">${email}</a>
-        ${extraCount}
+        ${emailsHtml}
       </div>`;
   }
 
