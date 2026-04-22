@@ -32,7 +32,6 @@ BASE = "https://api.outscraper.cloud"
 HEADERS = {"X-API-KEY": OUTSCRAPER_KEY}
 
 DATA_PATH = "docs/data.json"
-MAX_RESTAURANTS = 10   # cost cap while testing; set to None for all
 CONTACTS_PER_COMPANY = 3
 
 
@@ -233,21 +232,31 @@ def main():
         print("❌ No restaurants found in data.json")
         sys.exit(1)
 
-    # Pick the first N restaurants (by existing order in data.json, which is
-    # sorted by pain score descending) that have a usable website.
-    pool = restaurants if MAX_RESTAURANTS is None else restaurants[:MAX_RESTAURANTS]
+    # Only process restaurants that:
+    #   1. have a website we can query
+    #   2. haven't already been enriched (no `all_emails` key yet)
+    # Presence of `all_emails` — even as [] — means we already spent
+    # an Outscraper call on this domain.
     targets = []
-    for r in pool:
+    no_website = 0
+    already_enriched = 0
+    for r in restaurants:
+        if "all_emails" in r:
+            already_enriched += 1
+            continue
         domain = normalize_domain(r.get("website") or "")
-        if domain:
-            targets.append((r["place_id"], domain, r["name"]))
+        if not domain:
+            no_website += 1
+            continue
+        targets.append((r["place_id"], domain, r["name"]))
 
-    skipped = len(pool) - len(targets)
-    print(f"📂 Loaded {len(restaurants)} restaurants, targeting first {len(pool)}")
-    print(f"   → {len(targets)} have a website, {skipped} don't (skipping those)")
+    print(f"📂 Loaded {len(restaurants)} restaurants")
+    print(f"   → {already_enriched} already enriched (skipping)")
+    print(f"   → {no_website} without website (skipping)")
+    print(f"   → {len(targets)} to fetch")
 
     if not targets:
-        print("❌ None of the targeted restaurants have a website — nothing to enrich.")
+        print("✅ Nothing to do — all eligible restaurants already enriched.")
         sys.exit(0)
 
     domains = [t[1] for t in targets]

@@ -29,7 +29,6 @@ HEADERS = {"X-API-KEY": OUTSCRAPER_KEY}
 
 DATA_PATH = "docs/data.json"
 MENU_PHOTOS_PER_PLACE = 6
-MAX_RESTAURANTS = 10  # cap for cost control while testing; set to None for all
 
 
 # ──────────────────────────────────────────────
@@ -163,15 +162,21 @@ def main():
         print("❌ No restaurants found in data.json")
         sys.exit(1)
 
-    all_place_ids = [r["place_id"] for r in restaurants if r.get("place_id")]
-    print(f"📂 Loaded {len(restaurants)} restaurants from {DATA_PATH}")
+    # Only enrich restaurants that haven't been queried yet. Presence of
+    # the `menu_photos` key (even as []) means a previous run already
+    # spent the Outscraper call on this place — don't repeat it.
+    total = len(restaurants)
+    place_ids = [
+        r["place_id"] for r in restaurants
+        if r.get("place_id") and "menu_photos" not in r
+    ]
+    already = total - len(place_ids)
+    print(f"📂 Loaded {total} restaurants from {DATA_PATH}")
+    print(f"   → {already} already enriched (skipping), {len(place_ids)} to fetch")
 
-    if MAX_RESTAURANTS is not None and len(all_place_ids) > MAX_RESTAURANTS:
-        place_ids = all_place_ids[:MAX_RESTAURANTS]
-        print(f"⚠️  Test mode: enriching only the first {MAX_RESTAURANTS} "
-              f"(of {len(all_place_ids)}) — edit MAX_RESTAURANTS to lift the cap")
-    else:
-        place_ids = all_place_ids
+    if not place_ids:
+        print("✅ Nothing to do — all restaurants already have menu_photos.")
+        return
 
     menu_photos_by_id = fetch_menu_photos(place_ids)
 
