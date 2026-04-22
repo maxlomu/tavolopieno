@@ -1,9 +1,14 @@
 """
 TavoloPieno — Bari restaurants fetcher
 ======================================
-Uses Outscraper to fetch 10 restaurants in Bari + their reviews,
-detects whether any review includes a photo (menu candidate),
-and saves everything to docs/data.json for the dashboard to read.
+Uses Outscraper /maps/search-v3 to fetch N restaurants in the target
+city with their Google Maps profile data (rating, review count,
+website, phone, cover photo, etc.) and writes docs/data.json.
+
+This script does NOT fetch individual reviews anymore — review fetching
+is expensive ($3 / 1000) and only needed for trend analysis, which has
+moved to scripts/analyze_trend.py (triggered per-restaurant on demand
+via the dashboard). A base run here costs roughly $0.003 × N places.
 """
 
 import json
@@ -25,7 +30,6 @@ HEADERS = {"X-API-KEY": OUTSCRAPER_KEY}
 CITY = "Bari, Italy"
 QUERY = f"ristoranti {CITY}"
 N_RESTAURANTS = 100
-REVIEWS_PER_PLACE = 20  # enough to find photos if any exist
 
 
 # ──────────────────────────────────────────────
@@ -33,7 +37,6 @@ REVIEWS_PER_PLACE = 20  # enough to find photos if any exist
 # ──────────────────────────────────────────────
 
 def wait_for_task(url: str, max_wait: int = 300) -> list:
-    """Poll an async task until finished. Returns the data list."""
     print(f"   ⏳ Waiting for task: {url}")
     start = time.time()
     while time.time() - start < max_wait:
@@ -50,24 +53,19 @@ def wait_for_task(url: str, max_wait: int = 300) -> list:
 
 
 def call_async(endpoint: str, params: dict) -> list:
-    """Call Outscraper endpoint, handle async response."""
     r = requests.get(f"{BASE}/{endpoint}", headers=HEADERS, params=params, timeout=60)
     r.raise_for_status()
     body = r.json()
-
-    # If async, follow the results URL
     if "results_location" in body:
         return wait_for_task(body["results_location"])
-    # If sync, data is inline under "data"
     return body.get("data", [])
 
 
 # ──────────────────────────────────────────────
-# Fetchers
+# Fetch
 # ──────────────────────────────────────────────
 
 def fetch_restaurants() -> list:
-    """Get N restaurants matching the query."""
     print(f"🔍 Searching: {QUERY}")
     params = {
         "query": QUERY,
@@ -77,7 +75,6 @@ def fetch_restaurants() -> list:
         "async": "true",
     }
     data = call_async("maps/search-v3", params)
-    # Data comes back nested: [[{place1}, {place2}, ...]]
     if data and isinstance(data[0], list):
         places = data[0]
     else:
@@ -86,35 +83,15 @@ def fetch_restaurants() -> list:
     return places[:N_RESTAURANTS]
 
 
-def fetch_reviews(place_ids: list) -> dict:
-    """Get reviews (with photos) for a list of place_ids. Returns {place_id: [reviews]}."""
-    print(f"💬 Fetching reviews for {len(place_ids)} restaurants...")
-    params = {
-        "query": place_ids,  # requests will repeat the param for each id
-        "reviewsLimit": REVIEWS_PER_PLACE,
-        "language": "it",
-        "async": "true",
-        "sort": "newest",
-    }
-    data = call_async("maps/reviews-v3", params)
-    # data is a list of places, each with a reviews_data array
-    result = {}
-    for place in data:
-        pid = place.get("place_id") or place.get("google_id")
-        if pid:
-            result[pid] = place.get("reviews_data", [])
-    print(f"   ✅ Got reviews for {len(result)} places")
-    return result
-
-
 # ──────────────────────────────────────────────
-# Scoring
+# Scoring (rating + volume only; trend is added later by analyze_trend.py)
 # ──────────────────────────────────────────────
 
-def score_restaurant(place: dict, reviews: list) -> dict:
+def score_restaurant(place: dict) -> dict:
     """
-    Simple review-focused score for v1.
-    0–100, higher = more pain = better lead.
+    Base pain score using only the place-level rating and review count.
+    Range: 0–80 (trend_pain of 0–20 is added by analyze_trend.py when
+    the user explicitly analyzes a single restaurant).
     """
     rating = place.get("rating", 0) or 0
     count = place.get("reviews", 0) or 0
@@ -123,7 +100,7 @@ def score_restaurant(place: dict, reviews: list) -> dict:
     if rating == 0:
         rating_pain = 30
     elif rating < 3.0:
-        rating_pain = 15   # too far gone
+        rating_pain = 15
     elif rating <= 3.5:
         rating_pain = 50
     elif rating <= 4.0:
@@ -145,80 +122,71 @@ def score_restaurant(place: dict, reviews: list) -> dict:
     else:
         volume_pain = 0
 
-    # Trend pain (0–20): last 5 reviews vs overall rating
-    trend_pain = 0
-    if len(reviews) >= 5:
-        recent = [r.get("review_rating", rating) for r in reviews[:5]]
-        recent_avg = sum(recent) / len(recent)
-        if recent_avg < rating - 0.5:
-            trend_pain = 20
-        elif recent_avg < rating - 0.2:
-            trend_pain = 10
-
-    score = min(100, rating_pain + volume_pain + trend_pain)
+    score = rating_pain + volume_pain
     tier = (
         "Hot Lead"    if score >= 70 else
         "Warm Lead"   if score >= 50 else
         "Nurture"     if score >= 30 else
         "Low Priority"
     )
-
-    return {"score": score, "tier": tier, "trend": "declining" if trend_pain >= 10 else "stable"}
-
-
-def _extract_review_photos(rev: dict) -> list:
-    """
-    Pull photo URLs from a single review. Outscraper's reviews-v3 returns
-    `review_img_url` (single) or `review_img_urls` (plural list); some older
-    payloads used `review_photos` / `photos`. We check all shapes.
-    """
-    urls = []
-
-    single = rev.get("review_img_url")
-    if isinstance(single, str) and single:
-        urls.append(single)
-
-    plural = rev.get("review_img_urls")
-    if isinstance(plural, list):
-        urls.extend(u for u in plural if isinstance(u, str) and u)
-    elif isinstance(plural, str) and plural:
-        urls.append(plural)
-
-    # Legacy / fallback field names
-    for key in ("review_photos", "photos"):
-        val = rev.get(key)
-        if isinstance(val, list):
-            for item in val:
-                if isinstance(item, dict):
-                    u = item.get("url") or item.get("photo_url")
-                    if u:
-                        urls.append(u)
-                elif isinstance(item, str) and item:
-                    urls.append(item)
-
-    return urls
-
-
-def analyze_menu_photos(reviews: list) -> dict:
-    """Check if any review includes photos (menu candidate)."""
-    total_photos = 0
-    reviews_with_photos = 0
-    sample_photo_url = None
-
-    for rev in reviews:
-        urls = _extract_review_photos(rev)
-        if urls:
-            reviews_with_photos += 1
-            total_photos += len(urls)
-            if not sample_photo_url:
-                sample_photo_url = urls[0]
-
     return {
-        "has_photos_in_reviews": reviews_with_photos > 0,
-        "reviews_with_photos": reviews_with_photos,
-        "total_photos": total_photos,
-        "sample_photo_url": sample_photo_url,
+        "score": score,
+        "tier": tier,
+        "rating_pain": rating_pain,
+        "volume_pain": volume_pain,
+        "trend_pain": 0,
+        "trend": "unknown",           # set by analyze_trend.py
+        "trend_analyzed": False,      # flips to True after analyze_trend runs
     }
+
+
+# ──────────────────────────────────────────────
+# Merge helpers
+# ──────────────────────────────────────────────
+
+# Fields written by the various enrichment scripts. We must preserve
+# these when re-running the base fetcher so a refresh doesn't nuke
+# paid-for enrichment data.
+ENRICHED_FIELDS = (
+    # menu photos
+    "menu_photos", "has_menu_photos",
+    # contacts
+    "primary_email", "primary_contact_name", "primary_contact_title",
+    "all_emails", "contacts",
+    # trend analysis (per-restaurant)
+    "trend_analyzed", "trend_analyzed_at", "trend", "trend_pain",
+    "sample_reviews",
+)
+
+
+def load_existing_records() -> dict:
+    """Return {place_id: restaurant_dict} from the prior data.json, or {}."""
+    if not os.path.exists("docs/data.json"):
+        return {}
+    try:
+        with open("docs/data.json", encoding="utf-8") as f:
+            old = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return {}
+    return {r["place_id"]: r for r in old.get("restaurants", []) if r.get("place_id")}
+
+
+def apply_trend_to_score(record: dict) -> None:
+    """If trend_pain is set, fold it into score and re-derive tier."""
+    if not record.get("trend_analyzed"):
+        return
+    trend_pain = record.get("trend_pain") or 0
+    if trend_pain <= 0:
+        return
+    base = (record.get("rating_pain") or 0) + (record.get("volume_pain") or 0)
+    total = min(100, base + trend_pain)
+    record["score"] = total
+    record["tier"] = (
+        "Hot Lead"    if total >= 70 else
+        "Warm Lead"   if total >= 50 else
+        "Nurture"     if total >= 30 else
+        "Low Priority"
+    )
 
 
 # ──────────────────────────────────────────────
@@ -231,29 +199,16 @@ def main():
         print("❌ No places returned")
         sys.exit(1)
 
-    place_ids = [p.get("place_id") or p.get("google_id") for p in places if p.get("place_id") or p.get("google_id")]
-    reviews_by_id = fetch_reviews(place_ids)
+    existing = load_existing_records()
+    if existing:
+        print(f"   🗃️  Preserving enrichment data from {len(existing)} existing records")
 
     results = []
     for p in places:
         pid = p.get("place_id") or p.get("google_id")
-        reviews = reviews_by_id.get(pid, [])
+        scoring = score_restaurant(p)
 
-        scoring = score_restaurant(p, reviews)
-        photos = analyze_menu_photos(reviews)
-
-        # Pick 2 sample recent review snippets
-        sample_reviews = []
-        for rev in reviews[:3]:
-            text = rev.get("review_text") or ""
-            if text:
-                sample_reviews.append({
-                    "rating": rev.get("review_rating"),
-                    "text": text[:200],
-                    "date": rev.get("review_datetime_utc") or rev.get("review_date"),
-                })
-
-        results.append({
+        record = {
             "place_id":      pid,
             "name":          p.get("name", ""),
             "address":       p.get("full_address") or p.get("address", ""),
@@ -266,9 +221,17 @@ def main():
             "category":      p.get("type") or p.get("category"),
             "photo":         p.get("photo"),
             **scoring,
-            **photos,
-            "sample_reviews": sample_reviews,
-        })
+        }
+
+        # Re-apply any prior enrichment so we don't lose paid-for data
+        prior = existing.get(pid)
+        if prior:
+            for key in ENRICHED_FIELDS:
+                if key in prior:
+                    record[key] = prior[key]
+            apply_trend_to_score(record)
+
+        results.append(record)
 
     # Sort by score descending
     results.sort(key=lambda x: x["score"], reverse=True)
@@ -286,9 +249,10 @@ def main():
         json.dump(output, f, ensure_ascii=False, indent=2)
 
     print(f"\n🎯 Saved {len(results)} restaurants to docs/data.json")
-    print(f"   With photos in reviews: {sum(1 for r in results if r['has_photos_in_reviews'])}")
     print(f"   Hot Leads:  {sum(1 for r in results if r['tier'] == 'Hot Lead')}")
     print(f"   Warm Leads: {sum(1 for r in results if r['tier'] == 'Warm Lead')}")
+    print(f"\n💡 To add trend analysis for a specific restaurant, run the")
+    print(f"   'Analizza trend recensioni' workflow with its place_id.")
 
 
 if __name__ == "__main__":

@@ -189,6 +189,61 @@
     gap: 6px 14px;
     align-items: baseline;
   }
+
+  /* Trend button / status in the score column */
+  .trend-box {
+    margin-top: 10px;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .trend-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--ink-soft);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .trend-btn:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  .trend-status {
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .trend-status.declining { color: var(--accent); font-weight: 600; }
+  .trend-status.stable    { color: var(--sage); }
+
+  /* Toast for clipboard feedback */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--cream);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 100;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { opacity: 1; }
   .card:hover {
     border-color: var(--ink-soft);
     transform: translateY(-1px);
@@ -346,6 +401,73 @@ function fmtDate(iso) {
   } catch { return iso; }
 }
 
+function fmtRelative(iso) {
+  try {
+    const d = new Date(iso);
+    const diffMs = Date.now() - d.getTime();
+    const days = Math.floor(diffMs / 86400000);
+    if (days < 1) return "oggi";
+    if (days === 1) return "1 giorno fa";
+    if (days < 30) return `${days} giorni fa`;
+    return fmtDate(iso);
+  } catch { return ""; }
+}
+
+const TREND_WORKFLOW_URL =
+  "https://github.com/maxlomu/tavolopieno/actions/workflows/analyze_trend.yml";
+
+function showToast(msg) {
+  let el = document.getElementById("toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "toast";
+    el.className = "toast";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove("show"), 3500);
+}
+
+async function triggerTrendAnalysis(placeId, name) {
+  try {
+    await navigator.clipboard.writeText(placeId);
+    showToast(`Place ID copiato per "${name}". Nella pagina che si apre incollalo nel campo e premi "Run workflow".`);
+  } catch {
+    showToast(`Place ID: ${placeId} — copialo manualmente nella pagina che si apre.`);
+  }
+  setTimeout(() => window.open(TREND_WORKFLOW_URL, "_blank", "noopener"), 400);
+}
+
+function escapeAttr(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+function renderTrendBox(r) {
+  const btn = `<button class="trend-btn"
+    data-action="trend"
+    data-place-id="${escapeAttr(r.place_id)}"
+    data-name="${escapeAttr(r.name)}">📈 Analizza trend</button>`;
+  if (r.trend_analyzed) {
+    const label = r.trend === "declining" ? "in calo" : "stabile";
+    const cls = r.trend === "declining" ? "declining" : "stable";
+    const when = r.trend_analyzed_at ? ` · ${fmtRelative(r.trend_analyzed_at)}` : "";
+    return `<div class="trend-box">
+      <div class="trend-status ${cls}">Trend: ${label}${when}</div>
+      ${btn}
+    </div>`;
+  }
+  return `<div class="trend-box">${btn}</div>`;
+}
+
+// Event delegation — one listener handles all trend buttons
+document.addEventListener("click", (ev) => {
+  const btn = ev.target.closest('[data-action="trend"]');
+  if (!btn) return;
+  triggerTrendAnalysis(btn.dataset.placeId, btn.dataset.name || "");
+});
+
 function renderCard(r, idx) {
   const tc = TIERS[r.tier] || TIERS["Low Priority"];
   const chips = [];
@@ -362,6 +484,8 @@ function renderCard(r, idx) {
 
   if (r.trend === "declining") {
     chips.push(`<span class="chip trend">📉 Trend in calo</span>`);
+  } else if (r.trend_analyzed && r.trend === "stable") {
+    chips.push(`<span class="chip">📈 Trend stabile</span>`);
   }
 
   if (r.category) {
@@ -436,6 +560,7 @@ function renderCard(r, idx) {
         <div class="score-num">${r.score}</div>
         <div class="tier">${tc.label}</div>
         <div class="stars">⭐ ${r.rating} · ${r.review_count} rec.</div>
+        ${renderTrendBox(r)}
       </div>
       ${menuStrip}
       ${contactBlock}
