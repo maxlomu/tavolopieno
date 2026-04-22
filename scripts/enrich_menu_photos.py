@@ -162,13 +162,15 @@ def main():
         print("❌ No restaurants found in data.json")
         sys.exit(1)
 
-    # Only enrich restaurants that haven't been queried yet. Presence of
-    # the `menu_photos` key (even as []) means a previous run already
-    # spent the Outscraper call on this place — don't repeat it.
+    # Skip only records enriched by this (correct) version of the
+    # script — we write a per-record `menu_photos_fetched_at` whenever
+    # we successfully process a place. Older records that carry a stale
+    # `menu_photos` field from the previous buggy run don't have this
+    # timestamp, so they'll be re-processed correctly.
     total = len(restaurants)
     place_ids = [
         r["place_id"] for r in restaurants
-        if r.get("place_id") and "menu_photos" not in r
+        if r.get("place_id") and "menu_photos_fetched_at" not in r
     ]
     already = total - len(place_ids)
     print(f"📂 Loaded {total} restaurants from {DATA_PATH}")
@@ -181,15 +183,16 @@ def main():
     menu_photos_by_id = fetch_menu_photos(place_ids)
 
     # Only overwrite entries for the place_ids we actually queried. Leaves
-    # any previously-enriched restaurants untouched, so running in test
-    # mode doesn't wipe prior data.
+    # any previously-enriched restaurants untouched.
     fetched_ids = set(place_ids)
+    now_iso = datetime.now(timezone.utc).isoformat()
     for r in restaurants:
         pid = r.get("place_id")
         if pid in fetched_ids:
             photos = menu_photos_by_id.get(pid, [])
             r["menu_photos"] = photos
             r["has_menu_photos"] = len(photos) > 0
+            r["menu_photos_fetched_at"] = now_iso
 
     data["menu_photos_enriched_at"] = datetime.now(timezone.utc).isoformat()
 

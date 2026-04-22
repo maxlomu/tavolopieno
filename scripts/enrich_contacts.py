@@ -234,14 +234,15 @@ def main():
 
     # Only process restaurants that:
     #   1. have a website we can query
-    #   2. haven't already been enriched (no `all_emails` key yet)
-    # Presence of `all_emails` — even as [] — means we already spent
-    # an Outscraper call on this domain.
+    #   2. haven't already been enriched (no `contacts_fetched_at` yet)
+    # We gate on a per-record timestamp rather than the presence of
+    # `all_emails` so that records left over from earlier buggy runs
+    # get re-processed correctly.
     targets = []
     no_website = 0
     already_enriched = 0
     for r in restaurants:
-        if "all_emails" in r:
+        if "contacts_fetched_at" in r:
             already_enriched += 1
             continue
         domain = normalize_domain(r.get("website") or "")
@@ -264,17 +265,21 @@ def main():
 
     # Map back to place_id → contact info (domains can repeat, so use the
     # domain lookup rather than positional mapping)
+    now_iso = datetime.now(timezone.utc).isoformat()
+    fetched_pids = {t[0] for t in targets}
     enriched = 0
     for pid, domain, name in targets:
         info = contacts_by_domain.get(domain)
-        if not info:
-            continue
         # Find the restaurant in data.json and merge in the contact fields
         for r in restaurants:
             if r.get("place_id") == pid:
-                r.update(info)
-                if info.get("all_emails"):
-                    enriched += 1
+                if info:
+                    r.update(info)
+                    if info.get("all_emails"):
+                        enriched += 1
+                # Stamp the timestamp either way so we don't retry endlessly
+                # on domains that legitimately returned nothing.
+                r["contacts_fetched_at"] = now_iso
                 break
 
     data["contacts_enriched_at"] = datetime.now(timezone.utc).isoformat()
