@@ -87,6 +87,12 @@ def _coerce_photos_data(raw) -> list:
     return []
 
 
+def _to_full_res(url: str) -> str:
+    """Strip Google Photos size suffix to get the original resolution."""
+    idx = url.rfind("=")
+    return url[:idx] if idx > 0 else url
+
+
 def _url_from_photo(photo: dict) -> str | None:
     """Pick the best available URL from a single photo dict."""
     if not isinstance(photo, dict):
@@ -94,7 +100,7 @@ def _url_from_photo(photo: dict) -> str | None:
     for key in ("original_photo_url", "photo_url_big", "photo_url", "url"):
         u = photo.get(key)
         if isinstance(u, str) and u:
-            return u
+            return _to_full_res(u)
     return None
 
 
