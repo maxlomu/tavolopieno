@@ -94,6 +94,34 @@
   .stat.warm .val { color: var(--warm); }
   .stat.nurt .val { color: var(--yellow); }
 
+  /* Filter bar */
+  .filters {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 20px;
+  }
+  .filter-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--ink-soft);
+    border-radius: 99px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover {
+    border-color: var(--ink-soft);
+    color: var(--ink);
+  }
+  .filter-btn.active {
+    background: var(--yellow-soft);
+    border-color: var(--yellow);
+    color: #7a5b00;
+  }
+
   /* List */
   .list-header {
     display: flex;
@@ -607,15 +635,32 @@ async function load() {
     document.getElementById("city").textContent = data.city;
     document.getElementById("timestamp").textContent = "Aggiornato: " + fmtDate(data.generated_at);
 
+    window._allRestaurants = data.restaurants;
+    window._menuFilterActive = false;
+
     const html =
       renderStats(data) +
+      `<div class="filters">
+         <button class="filter-btn" id="filterMenu">🍽️ Solo con foto menu</button>
+       </div>` +
       `<div class="list-header">
          <h2>Ristoranti analizzati</h2>
-         <div class="count">${data.restaurants.length} risultati · ordinati per pain score</div>
+         <div class="count" id="listCount">${data.restaurants.length} risultati · ordinati per pain score</div>
        </div>` +
-      data.restaurants.map((r, i) => renderCard(r, i)).join("");
+      `<div id="cards">${data.restaurants.map((r, i) => renderCard(r, i)).join("")}</div>`;
 
     document.getElementById("content").innerHTML = html;
+
+    document.getElementById("filterMenu").addEventListener("click", function() {
+      window._menuFilterActive = !window._menuFilterActive;
+      this.classList.toggle("active", window._menuFilterActive);
+      const list = window._menuFilterActive
+        ? window._allRestaurants.filter(r => r.has_menu_photos)
+        : window._allRestaurants;
+      document.getElementById("cards").innerHTML = list.map((r, i) => renderCard(r, i)).join("");
+      document.getElementById("listCount").textContent =
+        `${list.length} risultati · ordinati per pain score`;
+    });
   } catch (err) {
     document.getElementById("content").innerHTML = `
       <div class="state">
