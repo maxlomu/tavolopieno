@@ -1,0 +1,93 @@
+name: Attiva cliente
+
+# Concierge step after a new subscription:
+# Actions → "Attiva cliente" → Run workflow → paste the customer's
+# email (or Stripe cus_… id) and the restaurant's place_id.
+
+on:
+  workflow_dispatch:
+    inputs:
+      customer:
+        description: "Email del cliente (o id Stripe cus_…)"
+        required: false
+        type: string
+      place_id:
+        description: "place_id del ristorante (da /leads.html o Google Maps)"
+        required: false
+        type: string
+      action:
+        description: "Cosa fare"
+        required: true
+        type: choice
+        default: activate
+        options:
+          - activate
+          - deactivate
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repo-commits
+  cancel-in-progress: false
+
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Activate / deactivate customer
+        env:
+          OUTSCRAPER_KEY: ${{ secrets.OUTSCRAPER_KEY }}
+          STRIPE_KEY: ${{ secrets.STRIPE_KEY }}
+          ANTHROPIC_KEY: ${{ secrets.ANTHROPIC_KEY }}
+          CUSTOMER_REF: ${{ inputs.customer }}
+          PLACE_ID: ${{ inputs.place_id }}
+          ACTION: ${{ inputs.action }}
+        run: python scripts/activate_customer.py
+
+      - name: Commit customer data and report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data docs/r
+          if git diff --staged --quiet; then
+            echo "Nothing to commit"
+            exit 0
+          fi
+          git commit -m "🆕 ${{ inputs.action == 'deactivate' && 'Disattiva' || 'Attiva' }} cliente ${{ inputs.place_id || inputs.customer }}"
+          # Other workflows also commit to this repo: rebase-retry the push
+          for i in 1 2 3; do
+            git push && break
+            echo "Push failed (attempt $i), rebasing and retrying…"
+            git pull --rebase
+            sleep 5
+          done
+
+      - name: Wait for GitHub Pages deploy
+        if: inputs.action != 'deactivate'
+        run: |
+          if [ -f "$RUNNER_TEMP/outbox.json" ]; then
+            echo "Waiting 90s so the report page is live before emailing its link…"
+            sleep 90
+          else
+            echo "No emails queued — skipping wait"
+          fi
+
+      - name: Send welcome email
+        if: inputs.action != 'deactivate'
+        env:
+          STRIPE_KEY: ${{ secrets.STRIPE_KEY }}
+          RESEND_KEY: ${{ secrets.RESEND_KEY }}
+          RESEND_FROM: ${{ vars.RESEND_FROM }}
+        run: python scripts/emailer.py
