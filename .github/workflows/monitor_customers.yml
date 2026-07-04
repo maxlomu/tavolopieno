@@ -1,0 +1,82 @@
+name: Report settimanali clienti
+
+# The weekly product loop: for every active customer, check their
+# Google profile, draft replies to new reviews, refresh their private
+# report page and email them the digest.
+#
+# Runs every Tuesday at 05:00 UTC (deliberately NOT Monday 06:00,
+# when fetch.yml refreshes the lead data) and on demand.
+
+on:
+  workflow_dispatch:
+    inputs:
+      token:
+        description: "Solo un cliente: il suo token (vuoto = tutti)"
+        required: false
+        type: string
+  schedule:
+    - cron: "0 5 * * 2"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repo-commits
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Monitor customers
+        env:
+          OUTSCRAPER_KEY: ${{ secrets.OUTSCRAPER_KEY }}
+          STRIPE_KEY: ${{ secrets.STRIPE_KEY }}
+          ANTHROPIC_KEY: ${{ secrets.ANTHROPIC_KEY }}
+          ONLY_TOKEN: ${{ inputs.token }}
+        run: python scripts/monitor_customers.py
+
+      - name: Commit updated reports and state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data docs/r
+          if git diff --staged --quiet; then
+            echo "Nothing to commit"
+            exit 0
+          fi
+          git commit -m "📬 Report settimanali clienti"
+          # Other workflows also commit to this repo: rebase-retry the push
+          for i in 1 2 3; do
+            git push && break
+            echo "Push failed (attempt $i), rebasing and retrying…"
+            git pull --rebase
+            sleep 5
+          done
+
+      - name: Wait for GitHub Pages deploy
+        run: |
+          if [ -f "$RUNNER_TEMP/outbox.json" ]; then
+            echo "Waiting 90s so report pages are live before emailing links…"
+            sleep 90
+          else
+            echo "No emails queued — skipping wait"
+          fi
+
+      - name: Send email digests
+        env:
+          STRIPE_KEY: ${{ secrets.STRIPE_KEY }}
+          RESEND_KEY: ${{ secrets.RESEND_KEY }}
+          RESEND_FROM: ${{ vars.RESEND_FROM }}
+        run: python scripts/emailer.py
