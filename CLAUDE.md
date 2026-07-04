@@ -6,23 +6,36 @@ This file orients Claude Code (and other AI coding assistants) working in this r
 
 ## Project: TavoloPieno
 
-**One-line:** A signal-based lead-scoring and outreach platform for Italian restaurants.
+**One-line:** Lead-scoring pipeline + self-serve micro-SaaS for Italian restaurants: Google-profile monitoring with AI-drafted review replies.
 
-**The business model:** Automatically detect Italian restaurants with detectable digital gaps (weak Google Business Profile, declining reviews, no online menu, no booking system), then contact the owner with a personalized audit and sell them a bundle of services to fix those gaps. Hybrid revenue: direct subscriptions (€149–€899/month) + one-off setup fees + broker commissions from service providers (print shops, booking systems).
+**The business model (v0.2):** Two connected halves.
+1. *Top of funnel (internal):* automatically detect Italian restaurants with digital gaps (weak Google Business Profile, declining reviews), rank them, and pitch the owners.
+2. *The product (self-serve):* restaurants subscribe at **€49/month** (Stripe Payment Link) for weekly profile monitoring + review replies drafted in Italian by Claude, delivered via email digest + a private report page. The owner copy-pastes replies into Google — no account access needed. The original agency bundle (€149–€899/month: setup fees, broker commissions) remains the upsell path on top.
 
 **Target market:** Italian restaurants first (~330K total, ~138K table-service). Bari is the current pilot city. Expansion to other Italian cities, then other countries, uses the same data pipeline.
 
 ---
 
-## Current state of this repo (v0.1)
+## Current state of this repo (v0.2)
 
-Very early. Only the **data-collection and lead-scoring half** exists so far. The outreach/service-delivery half is not built yet.
+Both halves exist now.
 
-### What works now
+### Lead-gen half (internal, unchanged since v0.1)
 
-- `scripts/fetch_restaurants.py` — calls Outscraper API to fetch N restaurants in a target city, pulls their recent reviews, computes a 0–100 "pain score" per restaurant, flags whether reviews contain photos (menu-candidate signal), and writes `docs/data.json`.
-- `.github/workflows/fetch.yml` — runs the script on-demand (manual `workflow_dispatch`) or weekly (Monday 6am UTC), commits the updated `data.json` back to the repo.
-- `docs/index.html` — standalone single-file dashboard (vanilla HTML/CSS/JS, no build step) served via GitHub Pages. Reads `data.json` and renders a ranked leaderboard.
+- `scripts/fetch_restaurants.py` — Outscraper search, 0–100 pain score, writes `docs/data.json`. Note: it does NOT fetch reviews (that moved to `analyze_trend.py`, on-demand per place_id).
+- `scripts/analyze_trend.py`, `scripts/enrich_contacts.py`, `scripts/enrich_menu_photos.py` — on-demand enrichment, each with its own workflow.
+- `docs/leads.html` — the internal leads dashboard (moved from `index.html` when the landing page took over the root).
+- These scripts each embed their own copy of the Outscraper helpers **on purpose** — do not refactor them to import `outscraper_client.py`; the working pipeline stays untouched.
+
+### SaaS half (the product)
+
+- `docs/index.html` — public Italian landing page (€49/mo). The Stripe Payment Link is pasted by Max into the `STRIPE_PAYMENT_LINK` const near the bottom.
+- `scripts/activate_customer.py` + workflow **"Attiva cliente"** — concierge onboarding: Max runs it with the payer's email + the restaurant's place_id after each Stripe notification. Generates a `secrets.token_urlsafe(16)` token, runs the first monitoring cycle, emails the welcome digest. Idempotent; reactivation keeps token/history.
+- `scripts/monitor_customers.py` + workflow **"Report settimanali clienti"** (Tue 05:00 UTC cron + manual) — per active customer: one `maps/reviews-v3` call (snapshot + newest 30 reviews), diff on seen review ids, Claude drafts Italian replies (one batched call, `scripts/llm.py`), state updated, private report regenerated (`scripts/report.py` → `docs/r/<token>.html`), digest queued. Auto-deactivates customers whose Stripe subscription ended.
+- `scripts/emailer.py` — Resend digests. Outbox pattern: monitoring writes `$RUNNER_TEMP/outbox.json`; the workflow commits, waits 90s for Pages to deploy, THEN sends (so links are live). Recipient emails are resolved from Stripe in memory at send time.
+- `data/customers.json` — customer registry (token, place_id, restaurant_name, stripe_customer_id, plan, status). `data/state/<token>.json` — per-customer history. Both OUTSIDE `/docs` so Pages doesn't serve them. **NO emails or PII in the repo, ever — Stripe is the customer database.**
+- Cost guardrails: `REVIEWS_LIMIT=30` per customer per run (~$0.09 Outscraper), `MAX_DRAFTS_PER_RUN=15` (claude-haiku-4-5, pennies).
+- The two SaaS workflows share `concurrency: group: repo-commits` and push with a `git pull --rebase` retry loop (the four legacy workflows push bare and can race — accepted).
 
 ### Architecture choice — why it looks like this
 
@@ -37,9 +50,12 @@ The repo owner (Max) is a non-coder. The whole system is deliberately designed s
 
 ---
 
-## Secrets
+## Secrets (GitHub repo secrets — never commit any of them)
 
-- `OUTSCRAPER_KEY` — stored in GitHub repo secrets. Used by the workflow only. Never commit it.
+- `OUTSCRAPER_KEY` — Outscraper API (both halves).
+- `STRIPE_KEY` — restricted Stripe key, read-only on Customers + Subscriptions (SaaS).
+- `RESEND_KEY` — Resend email API (SaaS). Repo *variable* `RESEND_FROM` sets the from-address once a domain is verified.
+- `ANTHROPIC_KEY` — Claude API for reply drafting (SaaS).
 
 ---
 
@@ -85,14 +101,15 @@ Outscraper pricing is pay-per-result (~$3/1000 reviews). Free tier covers ~100 r
 
 Rough priority order. If Max asks for "the next thing," it's probably one of these:
 
-1. **Make city a parameter** — currently Bari is hardcoded. Should be a workflow input or config file.
-2. **GBP completeness signal** — check website presence, phone, hours, photo count. Extends `score_restaurant()`.
-3. **Website health check** — fetch each restaurant's website, detect SSL, tech stack (BuiltWith-style), presence of online menu, presence of booking iframe.
-4. **Review NLP analysis** — categorize negative review themes (food / service / price / cleanliness) using an LLM. Adds concrete talking points for outreach.
-5. **Per-restaurant audit PDF generator** — the core sales tool. Takes one restaurant's data, produces a branded 4–6 page report to send as an outreach lead magnet.
-6. **Menu vision analysis** — actually identify menu photos vs food/exterior using a vision LLM.
-7. **Outreach orchestration** — email/direct-mail templates, sequencing, tracking.
-8. **Provider integrations** — hooks for booking systems (Plateform), print brokers (Pixartprinting/Vistaprint affiliate links), compliance services.
+1. **Auto-posting replies** via Google Business Profile API (customer OAuth + Google approval) — the natural premium tier above copy-paste drafts.
+2. **Make city a parameter** — currently Bari is hardcoded in `fetch_restaurants.py`. Should be a workflow input or config file.
+3. **GBP completeness signal in lead scoring** — the SaaS side already snapshots website/phone/hours/photos per customer; fold the same checks into `score_restaurant()`.
+4. **Website health check** — fetch each restaurant's website, detect SSL, tech stack (BuiltWith-style), presence of online menu, presence of booking iframe.
+5. **Review NLP analysis** — categorize negative review themes (food / service / price / cleanliness) using an LLM. Adds concrete talking points for outreach AND richer customer reports.
+6. **Per-restaurant audit PDF generator** — the core sales tool. Takes one restaurant's data, produces a branded 4–6 page report to send as an outreach lead magnet.
+7. **Menu vision analysis** — actually identify menu photos vs food/exterior using a vision LLM.
+8. **Outreach orchestration** — email/direct-mail templates, sequencing, tracking.
+9. **Provider integrations** — hooks for booking systems (Plateform), print brokers (Pixartprinting/Vistaprint affiliate links), compliance services.
 
 ---
 
@@ -109,8 +126,9 @@ Rough priority order. If Max asks for "the next thing," it's probably one of the
 
 - **Python:** standard library + `requests` only. No heavy deps. Type hints welcome but not required.
 - **Frontend:** vanilla HTML/CSS/JS in a single file. Google Fonts is fine. No bundlers, no React build, no npm.
-- **Data format:** `docs/data.json` is the contract between fetcher and dashboard. Adding fields is fine; renaming/removing requires updating both sides.
-- **Commits from CI:** the GitHub Action commits as `github-actions[bot]` with message `🔄 Refresh [city] restaurant data`.
+- **Data format:** `docs/data.json` is the contract between fetcher and leads dashboard; `data/state/<token>.json` is the contract between monitor and report renderer. Adding fields is fine; renaming/removing requires updating both sides.
+- **Commits from CI:** the GitHub Actions commit as `github-actions[bot]` (`🔄 Refresh [city] restaurant data`, `🆕 Attiva cliente …`, `📬 Report settimanali clienti`). SaaS workflows push with a rebase-retry loop and share a concurrency group.
+- **Privacy:** never write customer emails, names, or payment data into the repo — the repo is public. Stripe holds all PII.
 
 ---
 
