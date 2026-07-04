@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TavoloPieno — Bari</title>
+<title>TavoloPieno — Il tuo profilo Google, sempre curato</title>
+<meta name="description" content="Monitoraggio del profilo Google e risposte alle recensioni pronte da copiare, ogni settimana. Per ristoranti. €49/mese.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,660 +20,391 @@
     --yellow: #d4a017;
     --yellow-soft: #fdf4d0;
     --sage: #7a8b6f;
+    --sage-soft: #e6ece2;
     --border: #e6dfd3;
     --card: #ffffff;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
   body {
     font-family: 'Inter', system-ui, sans-serif;
     background: var(--cream);
     color: var(--ink);
-    line-height: 1.5;
-    min-height: 100vh;
+    line-height: 1.6;
   }
-  .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px 80px; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
 
-  /* Header */
-  header {
+  h1, h2, h3 { font-family: 'Fraunces', serif; letter-spacing: -0.02em; }
+
+  /* Nav */
+  nav {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
-    padding-bottom: 32px;
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-    gap: 16px;
+    padding: 22px 0;
   }
-  .brand h1 {
+  nav .logo {
     font-family: 'Fraunces', serif;
     font-weight: 800;
-    font-size: 42px;
-    letter-spacing: -0.02em;
-    line-height: 1;
+    font-size: 24px;
+    color: var(--ink);
+    text-decoration: none;
   }
-  .brand h1 span { color: var(--accent); }
-  .brand .tag {
+  nav .logo span { color: var(--accent); }
+  nav .links { display: flex; gap: 22px; align-items: center; }
+  nav .links a {
     color: var(--ink-soft);
+    text-decoration: none;
     font-size: 14px;
-    margin-top: 6px;
-    font-style: italic;
+    font-weight: 500;
   }
-  .meta {
-    text-align: right;
-    color: var(--ink-soft);
-    font-size: 13px;
-  }
-  .meta strong { color: var(--ink); font-weight: 600; }
-
-  /* Stats */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin: 32px 0 24px;
-  }
-  .stat {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px 20px;
-  }
-  .stat .label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--ink-soft);
-    margin-bottom: 6px;
-  }
-  .stat .val {
-    font-family: 'Fraunces', serif;
-    font-size: 32px;
-    font-weight: 800;
-    line-height: 1;
-  }
-  .stat.hot .val  { color: var(--accent); }
-  .stat.warm .val { color: var(--warm); }
-  .stat.nurt .val { color: var(--yellow); }
-
-  /* Filter bar */
-  .filters {
-    display: flex;
-    gap: 8px;
-    margin: 0 0 20px;
-  }
-  .filter-btn {
+  nav .links a:hover { color: var(--ink); }
+  .btn {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
     font-weight: 600;
-    padding: 8px 16px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--ink-soft);
-    border-radius: 99px;
+    font-size: 15px;
+    padding: 13px 26px;
+    border-radius: 10px;
+    text-decoration: none;
+    border: none;
     cursor: pointer;
     transition: all 0.15s;
   }
-  .filter-btn:hover {
-    border-color: var(--ink-soft);
-    color: var(--ink);
-  }
-  .filter-btn.active {
-    background: var(--yellow-soft);
-    border-color: var(--yellow);
-    color: #7a5b00;
-  }
+  .btn:hover { background: #a53a0c; transform: translateY(-1px); }
+  .btn.small { padding: 9px 18px; font-size: 13px; }
 
-  /* List */
-  .list-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin: 8px 0 16px;
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 72px 0 64px;
   }
-  .list-header h2 {
-    font-family: 'Fraunces', serif;
+  .hero .eyebrow {
+    display: inline-block;
+    background: var(--warm-soft);
+    color: #8a5a00;
+    font-size: 12px;
     font-weight: 600;
-    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 6px 14px;
+    border-radius: 99px;
+    margin-bottom: 22px;
   }
-  .list-header .count {
+  .hero h1 {
+    font-size: clamp(34px, 6vw, 56px);
+    font-weight: 800;
+    line-height: 1.1;
+    max-width: 760px;
+    margin: 0 auto 20px;
+  }
+  .hero h1 em { color: var(--accent); font-style: normal; }
+  .hero p.sub {
+    font-size: 19px;
     color: var(--ink-soft);
-    font-size: 13px;
+    max-width: 620px;
+    margin: 0 auto 32px;
   }
+  .hero .note { margin-top: 14px; font-size: 13px; color: var(--ink-soft); }
 
-  .card {
+  /* Sections */
+  section { padding: 56px 0; }
+  section.alt { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .sec-head { text-align: center; max-width: 640px; margin: 0 auto 40px; }
+  .sec-head h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 800; margin-bottom: 12px; }
+  .sec-head p { color: var(--ink-soft); font-size: 16px; }
+
+  .grid3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .feature {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 22px 24px;
-    margin-bottom: 12px;
-    transition: all 0.15s;
-    display: grid;
-    grid-template-columns: 60px 1fr auto;
-    gap: 20px;
-    align-items: center;
+    padding: 26px;
   }
-  .menu-photos {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-top: 14px;
-    margin-top: 14px;
-    border-top: 1px dashed var(--border);
-  }
-  .menu-photos .mp-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--ink-soft);
-    align-self: center;
-    flex-shrink: 0;
-    padding-right: 4px;
-  }
-  .menu-photos img {
-    width: 92px;
-    height: 92px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    flex-shrink: 0;
-    cursor: zoom-in;
-    transition: transform 0.15s;
-  }
-  .menu-photos img:hover { transform: scale(1.03); }
-  .chip.menu  { background: #fdf4d0; color: #7a5b00; }
+  section.alt .feature { background: var(--cream); }
+  .feature .emoji { font-size: 30px; margin-bottom: 12px; }
+  .feature h3 { font-size: 19px; font-weight: 600; margin-bottom: 8px; }
+  .feature p { color: var(--ink-soft); font-size: 14px; }
 
-  /* Contact block */
-  .contact {
-    grid-column: 1 / -1;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px dashed var(--border);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    align-items: baseline;
-    font-size: 13px;
-  }
-  .contact .c-label {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--ink-soft);
-  }
-  .contact .c-email {
-    font-family: 'Monaco', 'Menlo', monospace;
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 13px;
-  }
-  .contact .c-email:hover { text-decoration: underline; }
-  .contact .c-name { font-weight: 600; }
-  .contact .c-title { color: var(--ink-soft); font-style: italic; }
-  .contact .c-emails {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 14px;
-    align-items: baseline;
-  }
-
-  /* Trend button / status in the score column */
-  .trend-box {
-    margin-top: 10px;
-    font-size: 11px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-  }
-  .trend-btn {
-    font-family: 'Inter', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 5px 10px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--ink-soft);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .trend-btn:hover {
-    border-color: var(--ink);
-    color: var(--ink);
-  }
-  .trend-status {
-    font-size: 11px;
-    color: var(--ink-soft);
-  }
-  .trend-status.declining { color: var(--accent); font-weight: 600; }
-  .trend-status.stable    { color: var(--sage); }
-
-  /* Toast for clipboard feedback */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--ink);
-    color: var(--cream);
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 500;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    z-index: 100;
-    max-width: 90vw;
-    text-align: center;
-  }
-  .toast.show { opacity: 1; }
-  .card:hover {
-    border-color: var(--ink-soft);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-  }
-
-  .rank {
+  .step .num {
     font-family: 'Fraunces', serif;
     font-weight: 800;
-    font-size: 28px;
-    color: var(--ink-soft);
-    text-align: center;
-  }
-  .rank.top3 { color: var(--accent); }
-
-  .info h3 {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 19px;
-    line-height: 1.2;
-    margin-bottom: 6px;
-  }
-  .info h3 a {
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .info h3 a:hover { color: var(--accent); }
-  .info .addr {
-    color: var(--ink-soft);
-    font-size: 13px;
+    font-size: 30px;
+    color: var(--accent);
     margin-bottom: 10px;
   }
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .chip {
-    font-size: 11px;
-    font-weight: 500;
-    padding: 3px 10px;
-    border-radius: 99px;
-    background: #f0ebe1;
-    color: var(--ink-soft);
-  }
-  .chip.photo  { background: #e6ece2; color: #3e5934; }
-  .chip.nophoto{ background: #fce8d8; color: var(--accent); }
-  .chip.trend  { background: #fde8d8; color: var(--accent); }
 
-  .score-col { text-align: right; min-width: 120px; }
-  .score-num {
+  /* Cosa ricevi */
+  .checklist {
+    max-width: 640px;
+    margin: 0 auto;
+    display: grid;
+    gap: 12px;
+  }
+  .check {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .check .tick { color: var(--sage); font-size: 18px; font-weight: 700; line-height: 1.4; }
+  .check strong { display: block; font-size: 15px; }
+  .check span { color: var(--ink-soft); font-size: 13.5px; }
+
+  /* Prezzo */
+  .price-card {
+    max-width: 420px;
+    margin: 0 auto;
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: 18px;
+    padding: 38px 34px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(193, 68, 14, 0.08);
+  }
+  .price-card .plan-name {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .price-card .price {
     font-family: 'Fraunces', serif;
     font-weight: 800;
-    font-size: 44px;
+    font-size: 56px;
     line-height: 1;
   }
-  .score-col.hot  .score-num { color: var(--accent); }
-  .score-col.warm .score-num { color: var(--warm); }
-  .score-col.nurt .score-num { color: var(--yellow); }
-  .score-col.low  .score-num { color: var(--ink-soft); }
-  .tier {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-top: 4px;
+  .price-card .price small { font-size: 18px; font-weight: 400; color: var(--ink-soft); }
+  .price-card ul {
+    list-style: none;
+    margin: 24px 0 28px;
+    text-align: left;
+    display: grid;
+    gap: 9px;
   }
-  .score-col.hot  .tier { color: var(--accent); }
-  .score-col.warm .tier { color: var(--warm); }
-  .score-col.nurt .tier { color: var(--yellow); }
-  .score-col.low  .tier { color: var(--ink-soft); }
-  .stars { color: var(--ink-soft); font-size: 13px; margin-top: 6px; }
+  .price-card li { font-size: 14px; color: var(--ink); padding-left: 26px; position: relative; }
+  .price-card li::before { content: "✓"; position: absolute; left: 0; color: var(--sage); font-weight: 700; }
+  .price-card .cancel-note { font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; }
 
-  /* Empty / loading */
-  .state {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--ink-soft);
-  }
-  .state h2 {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 24px;
-    color: var(--ink);
-    margin-bottom: 10px;
-  }
-  .state code {
-    font-family: 'Monaco', monospace;
+  /* FAQ */
+  .faq { max-width: 680px; margin: 0 auto; }
+  .faq details {
     background: var(--card);
     border: 1px solid var(--border);
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 12px;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 10px;
   }
+  .faq summary {
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font-size: 20px; color: var(--ink-soft); flex-shrink: 0; }
+  .faq details[open] summary::after { content: "–"; }
+  .faq details p { margin-top: 12px; color: var(--ink-soft); font-size: 14px; }
 
   footer {
     text-align: center;
     color: var(--ink-soft);
-    font-size: 12px;
-    margin-top: 48px;
-    padding-top: 24px;
+    font-size: 13px;
+    padding: 40px 24px 50px;
     border-top: 1px solid var(--border);
+    margin-top: 40px;
   }
+  footer a { color: var(--ink-soft); }
 
-  @media (max-width: 640px) {
-    .wrap { padding: 24px 16px 60px; }
-    .brand h1 { font-size: 32px; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .card {
-      grid-template-columns: 1fr auto;
-      gap: 14px;
-    }
-    .rank { display: none; }
-    .score-num { font-size: 34px; }
+  @media (max-width: 720px) {
+    .grid3 { grid-template-columns: 1fr; }
+    nav .links a.hide-sm { display: none; }
+    .hero { padding: 48px 0 44px; }
+    section { padding: 42px 0; }
   }
 </style>
 </head>
 <body>
+
 <div class="wrap">
-  <header>
-    <div class="brand">
-      <h1>Tavolo<span>Pieno</span></h1>
-      <div class="tag">Signal-based lead scoring for Italian restaurants</div>
+  <nav>
+    <a class="logo" href="./">Tavolo<span>Pieno</span></a>
+    <div class="links">
+      <a href="#come-funziona" class="hide-sm">Come funziona</a>
+      <a href="#prezzo" class="hide-sm">Prezzo</a>
+      <a href="#faq" class="hide-sm">Domande</a>
+      <a class="btn small js-checkout" href="#prezzo">Inizia ora</a>
     </div>
-    <div class="meta" id="meta">
-      <div><strong id="city">—</strong></div>
-      <div id="timestamp">Loading…</div>
-    </div>
-  </header>
-
-  <div id="content">
-    <div class="state">
-      <h2>Loading data…</h2>
-      <p>Fetching from <code>docs/data.json</code></p>
-    </div>
-  </div>
-
-  <footer>
-    TavoloPieno · built with 🍝 · data via Outscraper
-  </footer>
+  </nav>
 </div>
 
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Per ristoranti · Bari e tutta Italia</div>
+    <h1>Le recensioni ti fanno perdere clienti? <em>TavoloPieno risponde per te.</em></h1>
+    <p class="sub">Ogni settimana controlliamo il tuo profilo Google, ti avvisiamo se qualcosa non va e ti prepariamo le risposte alle nuove recensioni — in italiano, pronte da copiare. Tu pensi alla cucina.</p>
+    <a class="btn js-checkout" href="#prezzo">Attiva il monitoraggio — €49/mese</a>
+    <div class="note">Senza vincoli · disdici quando vuoi · nessun accesso al tuo account Google richiesto</div>
+  </div>
+</div>
+
+<section class="alt" id="problema">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Il 90% dei clienti ti sceglie (o ti scarta) su Google</h2>
+      <p>Prima ancora di vedere il tuo menu, guardano stelle, foto e come rispondi alle critiche.</p>
+    </div>
+    <div class="grid3">
+      <div class="feature">
+        <div class="emoji">💬</div>
+        <h3>Recensioni senza risposta</h3>
+        <p>Una recensione negativa ignorata resta lì per sempre e parla al posto tuo. Una risposta curata invece recupera il cliente — e rassicura i prossimi cento che la leggono.</p>
+      </div>
+      <div class="feature">
+        <div class="emoji">📉</div>
+        <h3>Profilo incompleto o fermo</h3>
+        <p>Orari mancanti, niente sito, poche foto: Google ti mostra meno, i clienti passano al ristorante dopo. E nessuno ti avvisa quando il voto inizia a scendere.</p>
+      </div>
+      <div class="feature">
+        <div class="emoji">⏰</div>
+        <h3>Zero tempo per pensarci</h3>
+        <p>Tra servizio, fornitori e personale, chi ha il tempo di scrivere risposte diplomatiche alle recensioni? Nessuno. Per questo esiste TavoloPieno.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="come-funziona">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Come funziona</h2>
+      <p>Nessuna app da installare, nessuna password da condividere. Tre passi e sei operativo.</p>
+    </div>
+    <div class="grid3">
+      <div class="feature step">
+        <div class="num">1</div>
+        <h3>Abbonati e indica il tuo ristorante</h3>
+        <p>Al pagamento ti chiediamo solo nome e città del ristorante. Entro un giorno lavorativo il monitoraggio è attivo.</p>
+      </div>
+      <div class="feature step">
+        <div class="num">2</div>
+        <h3>Ogni settimana controlliamo il tuo profilo</h3>
+        <p>Voto, nuove recensioni, andamento, completezza del profilo Google. Se arriva una recensione negativa, ricevi subito un avviso.</p>
+      </div>
+      <div class="feature step">
+        <div class="num">3</div>
+        <h3>Ricevi le risposte pronte da copiare</h3>
+        <p>Un'email col riepilogo e una pagina privata con la risposta scritta per ogni nuova recensione. Un clic per copiarla, un clic per incollarla su Google.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="cosa-ricevi">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Cosa ricevi, ogni settimana</h2>
+    </div>
+    <div class="checklist">
+      <div class="check"><div class="tick">✓</div><div><strong>Risposte alle recensioni scritte per te</strong><span>In italiano, nel tono giusto: ringraziano chi ti loda, disinnescano chi critica. Tu le rileggi e le pubblichi in un clic.</span></div></div>
+      <div class="check"><div class="tick">✓</div><div><strong>Avviso immediato sulle recensioni negative</strong><span>Se arriva una recensione da 1 o 2 stelle, l'email te lo dice subito nell'oggetto — con la bozza di risposta già pronta.</span></div></div>
+      <div class="check"><div class="tick">✓</div><div><strong>Monitoraggio del voto e dell'andamento</strong><span>Un grafico settimana per settimana: se il voto scende, lo vedi prima che diventi un problema.</span></div></div>
+      <div class="check"><div class="tick">✓</div><div><strong>Checklist del profilo Google</strong><span>Sito, telefono, orari, foto: ti diciamo cosa manca al tuo profilo per rendere al massimo.</span></div></div>
+      <div class="check"><div class="tick">✓</div><div><strong>La tua pagina privata sempre aggiornata</strong><span>Un link riservato con tutto: statistiche, recensioni recenti e risposte pronte. Apribile anche dal telefono.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="prezzo">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Un prezzo solo, tutto incluso</h2>
+      <p>Meno di quanto costa un coperto al giorno.</p>
+    </div>
+    <div class="price-card">
+      <div class="plan-name">TavoloPieno Base</div>
+      <div class="price">€49<small>/mese</small></div>
+      <ul>
+        <li>Monitoraggio settimanale del profilo Google</li>
+        <li>Risposte alle nuove recensioni pronte da copiare</li>
+        <li>Avviso immediato sulle recensioni negative</li>
+        <li>Grafico dell'andamento del voto</li>
+        <li>Checklist di completezza del profilo</li>
+        <li>Pagina privata + riepilogo via email</li>
+      </ul>
+      <a class="btn js-checkout" href="#">Abbonati ora</a>
+      <div class="cancel-note">Pagamento sicuro con Stripe · disdici quando vuoi, senza penali.<br>Al pagamento indica <strong>nome e città del ristorante</strong>.</div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="faq">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Domande frequenti</h2>
+    </div>
+    <div class="faq">
+      <details>
+        <summary>Chi scrive le risposte alle recensioni?</summary>
+        <p>Le prepara un'intelligenza artificiale istruita sul tono giusto per la ristorazione italiana: cordiale, professionale, mai polemica. Ogni bozza è pensata sulla singola recensione — cita quello che il cliente ha scritto, ringrazia per i complimenti e gestisce con garbo le critiche. Tu la rileggi sempre prima di pubblicarla.</p>
+      </details>
+      <details>
+        <summary>Le risposte le pubblicate voi?</summary>
+        <p>No: te le prepariamo pronte da copiare, ma a pubblicarle sei tu, con un clic dal tuo profilo Google. Così hai sempre l'ultima parola su ciò che il tuo ristorante dice pubblicamente. La pubblicazione automatica è in arrivo come opzione futura.</p>
+      </details>
+      <details>
+        <summary>Serve darvi accesso al mio account Google?</summary>
+        <p>No. Lavoriamo solo su informazioni pubbliche del tuo profilo (recensioni, voto, foto, orari). Nessuna password, nessun permesso da concedere, nessun rischio.</p>
+      </details>
+      <details>
+        <summary>Come disdico?</summary>
+        <p>Dal link di gestione abbonamento che trovi in ogni email, in qualsiasi momento. L'abbonamento si interrompe a fine mese, senza penali e senza dover chiamare nessuno.</p>
+      </details>
+      <details>
+        <summary>Quando arriva il primo report?</summary>
+        <p>Attiviamo il monitoraggio entro un giorno lavorativo dal pagamento: riceverai subito la prima email con la tua pagina privata. Poi, ogni settimana, il riepilogo con le nuove recensioni e le risposte pronte.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  TavoloPieno · Bari, Italia · <a href="mailto:massimo.lomuscio@gmail.com">contattaci</a><br>
+  <span style="opacity:0.7">Il tavolo pieno inizia da un profilo curato. 🍝</span>
+</footer>
+
 <script>
-const TIERS = {
-  "Hot Lead":     { class: "hot",  label: "Hot Lead" },
-  "Warm Lead":    { class: "warm", label: "Warm Lead" },
-  "Nurture":      { class: "nurt", label: "Nurture" },
-  "Low Priority": { class: "low",  label: "Low Priority" },
-};
+// ── MAX: incolla qui il link Stripe ──────────────────────────────
+// 1. Vai su Stripe → Payment Links → crea il link per "TavoloPieno Base" €49/mese
+//    (raccogli email + campo personalizzato "Nome ristorante e città")
+// 2. Sostituisci la riga qui sotto con il tuo link, tra le virgolette.
+const STRIPE_PAYMENT_LINK = ""; // es: "https://buy.stripe.com/xxxxxxxx"
+// ─────────────────────────────────────────────────────────────────
 
-function fmtDate(iso) {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleString("it-IT", { dateStyle: "medium", timeStyle: "short" });
-  } catch { return iso; }
-}
-
-function fmtRelative(iso) {
-  try {
-    const d = new Date(iso);
-    const diffMs = Date.now() - d.getTime();
-    const days = Math.floor(diffMs / 86400000);
-    if (days < 1) return "oggi";
-    if (days === 1) return "1 giorno fa";
-    if (days < 30) return `${days} giorni fa`;
-    return fmtDate(iso);
-  } catch { return ""; }
-}
-
-const TREND_WORKFLOW_URL =
-  "https://github.com/maxlomu/tavolopieno/actions/workflows/analyze_trend.yml";
-
-function showToast(msg) {
-  let el = document.getElementById("toast");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "toast";
-    el.className = "toast";
-    document.body.appendChild(el);
+document.querySelectorAll(".js-checkout").forEach(btn => {
+  if (STRIPE_PAYMENT_LINK) {
+    btn.href = STRIPE_PAYMENT_LINK;
+  } else if (btn.getAttribute("href") === "#") {
+    // Link Stripe non ancora configurato: rimanda al contatto email
+    btn.href = "mailto:massimo.lomuscio@gmail.com?subject=TavoloPieno%20—%20voglio%20abbonarmi";
+    btn.textContent = "Scrivici per attivarlo";
   }
-  el.textContent = msg;
-  el.classList.add("show");
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.classList.remove("show"), 3500);
-}
-
-async function triggerTrendAnalysis(placeId, name) {
-  try {
-    await navigator.clipboard.writeText(placeId);
-    showToast(`Place ID copiato per "${name}". Nella pagina che si apre incollalo nel campo e premi "Run workflow".`);
-  } catch {
-    showToast(`Place ID: ${placeId} — copialo manualmente nella pagina che si apre.`);
-  }
-  setTimeout(() => window.open(TREND_WORKFLOW_URL, "_blank", "noopener"), 400);
-}
-
-function escapeAttr(s) {
-  return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-}
-
-function renderTrendBox(r) {
-  const btn = `<button class="trend-btn"
-    data-action="trend"
-    data-place-id="${escapeAttr(r.place_id)}"
-    data-name="${escapeAttr(r.name)}">📈 Analizza trend</button>`;
-  if (r.trend_analyzed) {
-    const label = r.trend === "declining" ? "in calo" : "stabile";
-    const cls = r.trend === "declining" ? "declining" : "stable";
-    const when = r.trend_analyzed_at ? ` · ${fmtRelative(r.trend_analyzed_at)}` : "";
-    return `<div class="trend-box">
-      <div class="trend-status ${cls}">Trend: ${label}${when}</div>
-      ${btn}
-    </div>`;
-  }
-  return `<div class="trend-box">${btn}</div>`;
-}
-
-// Event delegation — one listener handles all trend buttons
-document.addEventListener("click", (ev) => {
-  const btn = ev.target.closest('[data-action="trend"]');
-  if (!btn) return;
-  triggerTrendAnalysis(btn.dataset.placeId, btn.dataset.name || "");
 });
-
-function renderCard(r, idx) {
-  const tc = TIERS[r.tier] || TIERS["Low Priority"];
-  const chips = [];
-
-  if (r.has_menu_photos) {
-    chips.push(`<span class="chip menu">🍽️ ${r.menu_photos.length} foto menu</span>`);
-  } else {
-    chips.push(`<span class="chip nophoto">📷 Nessuna foto menu</span>`);
-  }
-
-  if (r.has_photos_in_reviews) {
-    chips.push(`<span class="chip photo">📸 ${r.reviews_with_photos} recensioni con foto</span>`);
-  }
-
-  if (r.trend === "declining") {
-    chips.push(`<span class="chip trend">📉 Trend in calo</span>`);
-  } else if (r.trend_analyzed && r.trend === "stable") {
-    chips.push(`<span class="chip">📈 Trend stabile</span>`);
-  }
-
-  if (r.category) {
-    chips.push(`<span class="chip">${r.category}</span>`);
-  }
-
-  if (r.price_level) {
-    chips.push(`<span class="chip">${r.price_level}</span>`);
-  }
-
-  const nameHtml = r.maps_url
-    ? `<a href="${r.maps_url}" target="_blank" rel="noreferrer">${r.name}</a>`
-    : r.name;
-
-  const menuStrip = (r.menu_photos && r.menu_photos.length)
-    ? `<div class="menu-photos">
-         <span class="mp-label">Menu</span>
-         ${r.menu_photos.map(u => `<a href="${u}" target="_blank" rel="noreferrer"><img src="${u}" alt="menu" loading="lazy"></a>`).join("")}
-       </div>`
-    : "";
-
-  // Build the pool of emails from all available fields, deduplicated.
-  const rawEmails = [];
-  if (r.primary_email) rawEmails.push(r.primary_email);
-  if (Array.isArray(r.all_emails)) rawEmails.push(...r.all_emails);
-  const uniqEmails = [...new Set(rawEmails.map(e => (e || "").toLowerCase()).filter(e => e.includes("@")))];
-
-  // Blocklist of domains that are clearly not the restaurant's own —
-  // usually picked up by the scraper from linked third-party pages
-  // (platform/CMS credits, unrelated projects, placeholders).
-  // Personal providers like gmail.com / libero.it are intentionally NOT
-  // here, because small restaurants often use them legitimately.
-  const BLOCKED_EMAIL_DOMAINS = new Set([
-    "gnome.org",
-    "wordpress.com", "wordpress.org",
-    "wix.com", "wixpress.com",
-    "sentry.io", "sentry-next.wixpress.com",
-    "example.com", "domain.com", "email.com", "yourdomain.com",
-    "shopify.com", "squarespace.com",
-    "godaddy.com",
-  ]);
-  const emailsToShow = uniqEmails.filter(e => {
-    const d = (e.split("@")[1] || "").toLowerCase();
-    return d && !BLOCKED_EMAIL_DOMAINS.has(d);
-  });
-
-  let contactBlock = "";
-  if (emailsToShow.length || r.primary_contact_name) {
-    const nameBit = r.primary_contact_name
-      ? `<span class="c-name">${r.primary_contact_name}</span>${r.primary_contact_title ? ` <span class="c-title">— ${r.primary_contact_title}</span>` : ""}`
-      : "";
-    const emailsHtml = emailsToShow.length
-      ? `<div class="c-emails">${emailsToShow.map(e => `<a class="c-email" href="mailto:${e}">${e}</a>`).join("")}</div>`
-      : "";
-    contactBlock = `
-      <div class="contact">
-        <span class="c-label">Contatto</span>
-        ${nameBit}
-        ${emailsHtml}
-      </div>`;
-  }
-
-  return `
-    <div class="card">
-      <div class="rank ${idx < 3 ? 'top3' : ''}">${idx + 1}</div>
-      <div class="info">
-        <h3>${nameHtml}</h3>
-        <div class="addr">${r.address || ""}</div>
-        <div class="chips">${chips.join("")}</div>
-      </div>
-      <div class="score-col ${tc.class}">
-        <div class="score-num">${r.score}</div>
-        <div class="tier">${tc.label}</div>
-        <div class="stars">⭐ ${r.rating} · ${r.review_count} rec.</div>
-        ${renderTrendBox(r)}
-      </div>
-      ${menuStrip}
-      ${contactBlock}
-    </div>
-  `;
-}
-
-function renderStats(data) {
-  const tiers = { "Hot Lead": 0, "Warm Lead": 0, "Nurture": 0, "Low Priority": 0 };
-  let withMenuPhotos = 0;
-  data.restaurants.forEach(r => {
-    tiers[r.tier] = (tiers[r.tier] || 0) + 1;
-    if (r.has_menu_photos) withMenuPhotos++;
-  });
-
-  return `
-    <div class="stats">
-      <div class="stat hot">
-        <div class="label">Hot Leads</div>
-        <div class="val">${tiers["Hot Lead"]}</div>
-      </div>
-      <div class="stat warm">
-        <div class="label">Warm Leads</div>
-        <div class="val">${tiers["Warm Lead"]}</div>
-      </div>
-      <div class="stat nurt">
-        <div class="label">Nurture</div>
-        <div class="val">${tiers["Nurture"]}</div>
-      </div>
-      <div class="stat">
-        <div class="label">Con foto menu</div>
-        <div class="val">${withMenuPhotos}/${data.restaurants.length}</div>
-      </div>
-    </div>
-  `;
-}
-
-async function load() {
-  try {
-    const res = await fetch("data.json?t=" + Date.now());
-    if (!res.ok) throw new Error("fetch failed");
-    const data = await res.json();
-
-    document.getElementById("city").textContent = data.city;
-    document.getElementById("timestamp").textContent = "Aggiornato: " + fmtDate(data.generated_at);
-
-    window._allRestaurants = data.restaurants;
-    window._menuFilterActive = false;
-
-    const html =
-      renderStats(data) +
-      `<div class="filters">
-         <button class="filter-btn" id="filterMenu">🍽️ Solo con foto menu</button>
-       </div>` +
-      `<div class="list-header">
-         <h2>Ristoranti analizzati</h2>
-         <div class="count" id="listCount">${data.restaurants.length} risultati · ordinati per pain score</div>
-       </div>` +
-      `<div id="cards">${data.restaurants.map((r, i) => renderCard(r, i)).join("")}</div>`;
-
-    document.getElementById("content").innerHTML = html;
-
-    document.getElementById("filterMenu").addEventListener("click", function() {
-      window._menuFilterActive = !window._menuFilterActive;
-      this.classList.toggle("active", window._menuFilterActive);
-      const list = window._menuFilterActive
-        ? window._allRestaurants.filter(r => r.has_menu_photos)
-        : window._allRestaurants;
-      document.getElementById("cards").innerHTML = list.map((r, i) => renderCard(r, i)).join("");
-      document.getElementById("listCount").textContent =
-        `${list.length} risultati · ordinati per pain score`;
-    });
-  } catch (err) {
-    document.getElementById("content").innerHTML = `
-      <div class="state">
-        <h2>Nessun dato disponibile</h2>
-        <p>Vai su GitHub Actions e avvia il workflow <code>Fetch Bari restaurants</code>.</p>
-        <p style="margin-top:12px;">Appena completato, ricarica questa pagina.</p>
-      </div>
-    `;
-  }
-}
-
-load();
 </script>
 </body>
 </html>
