@@ -52,21 +52,33 @@ def _trend_svg(snapshots: list) -> str:
         )
     w, h, pad = 640, 180, 28
     n = len(points)
-    xs = [pad + i * (w - 2 * pad) / (n - 1) for i in range(n)]
-    ys = [pad + (5 - r) * (h - 2 * pad) / 4 for _, r in points]  # 5★ top, 1★ bottom
+    ratings = [r for _, r in points]
+    # Zoom the y-axis to the data (±0.3★, min span 0.6★, clamped to 1–5)
+    # so a 4.4 → 4.1 slide is clearly visible instead of a flat line.
+    lo = max(1.0, min(ratings) - 0.3)
+    hi = min(5.0, max(ratings) + 0.3)
+    if hi - lo < 0.6:
+        mid = (hi + lo) / 2
+        lo, hi = max(1.0, mid - 0.3), min(5.0, mid + 0.3)
+
+    def y_of(r: float) -> float:
+        return pad + (hi - r) * (h - 2 * pad) / (hi - lo)
+
+    xs = [pad + 14 + i * (w - 2 * pad - 14) / (n - 1) for i in range(n)]
+    ys = [y_of(r) for r in ratings]
     poly = " ".join(f"{x:.1f},{y:.1f}" for x, y in zip(xs, ys))
     dots = "".join(
         f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="#c1440e">'
         f"<title>{_esc(d)}: {r}★</title></circle>"
         for (d, r), x, y in zip(points, xs, ys)
     )
+    ticks = [lo + i * (hi - lo) / 4 for i in range(5)]
     gridlines = "".join(
-        f'<line x1="{pad}" y1="{pad + (5 - g) * (h - 2 * pad) / 4:.1f}" '
-        f'x2="{w - pad}" y2="{pad + (5 - g) * (h - 2 * pad) / 4:.1f}" '
+        f'<line x1="{pad + 14}" y1="{y_of(g):.1f}" x2="{w - pad}" y2="{y_of(g):.1f}" '
         f'stroke="#e6dfd3" stroke-width="1"/>'
-        f'<text x="{pad - 6}" y="{pad + (5 - g) * (h - 2 * pad) / 4 + 4:.1f}" '
-        f'text-anchor="end" font-size="11" fill="#6b6560">{g}★</text>'
-        for g in (1, 2, 3, 4, 5)
+        f'<text x="{pad + 8}" y="{y_of(g) + 4:.1f}" '
+        f'text-anchor="end" font-size="11" fill="#6b6560">{g:.1f}</text>'
+        for g in ticks
     )
     first_label = _esc(_fmt_date(points[0][0]))
     last_label = _esc(_fmt_date(points[-1][0]))
